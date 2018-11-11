@@ -48,4 +48,4 @@ min-public-methods=0
 max-parents=14
 
 [TYPECHECK]
-# ignored-modules=worker, comiccrawler.mods.*
+ignored-modules=argparse

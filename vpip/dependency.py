@@ -1,56 +1,92 @@
+import configparser
 import re
 from pathlib import Path
-from pkg_resources import parse_requirements
 
 from configupdater import ConfigUpdater
+from pkg_resources import parse_requirements
 
-def update_dev(packages):
-    file = Path("requirements.txt")
-    def get_spec(name, version):
+class DevUpdater:
+    def __init__(self):
+        self.file = Path("requirements.txt")
+        
+    def get_requirements(self):
+        try:
+            return self.file.read_text("utf8")
+        except OSError:
+            pass
+        return ""
+        
+    def get_spec(self, name, version):
         return "{}=={}".format(name, version)
-    text = file.read_text("utf8") if file.exists() else None 
-    lines = update_requires(text, packages, get_spec)
-    file.write_text("".join(l + "\n" for l in lines), "utf8")
-    
-def update_prod(packages):
-    file = Path("setup.cfg")
-    config = ConfigUpdater()
-    text = ""
-    indent = " " * 4
-    if file.exists():
-        text = file.read_text("utf8")
-        indent = detect_indent(text) or indent
-        config.read_string(text)
-    if "options" not in config:
-        config.add_section("options")
-    if "install_requires" not in config["options"]:
-        config["options"]["install_requires"] = ""
-    option = config["options"]["install_requires"]
-    def get_spec(name, version):
+        
+    def write_requirements(self, lines):
+        with self.file.open("w", "utf8") as f:
+            for line in lines:
+                f.write(line + "\n")
+                
+class ProdUpdater:
+    def __init__(self):
+        self.file = Path("setup.cfg")
+        self.config = ConfigUpdater()
+        self.indent = None
+        
+    def get_requirements(self):
+        try:
+            text = self.file.read_text("utf8")
+            self.indent = detect_indent(text)
+            self.config.read_string(text)
+            return self.config.get("options", "install_requires").value
+        except (OSError, configparser.Error):
+            pass
+        return ""
+        
+    def get_spec(self, name, version):
         if not version.startswith("0."):
             version = re.match("\d+\.\d+", version).group()
         return "{}~={}".format(name, version)
-    lines = update_requires(option.value, packages, get_spec)
-    option.set_values(lines, indent=indent)
-    # breakpoint()
-    file.write_text(str(config).replace("\r", ""), "utf8")
         
-def update_requires(text, packages, get_spec):
-    pkg_versions = {info.name: info.version for info in packages}
+    def write_requirements(self, lines):
+        if "options" not in self.config:
+            self.config.add_section("options")
+        self.config.set("options", "install_requires", "".join(
+            "\n" + self.indent + l for l in lines))
+        self.file.write_text(str(self.config).replace("\r", ""), "utf8")
+        
+def update_dependency(updater, added=None, removed=None):
+    added = added or {}
+    removed = set(removed or [])
     output = []
-    for require in parse_requirements(text):
-        if require.name in pkg_versions:
-            version = pkg_versions.pop(require.name)
-            spec = get_spec(require.name, version)
+    dirty = False
+    for require in parse_requirements(updater.get_requirements()):
+        if require.name in added:
+            dirty = True
+            version = added.pop(require.name)
+            spec = updater.get_spec(require.name, version)
             if require.marker:
                 spec += ";{}".format(require.marker)
             output.append(spec)
+        elif require.name in removed:
+            dirty = True
         else:
             output.append(str(require))
-    for name, version in pkg_versions.items():
-        output.append(get_spec(name, version))
-    output.sort()
-    return output
+            
+    for name, version in added.items():
+        dirty = True
+        output.append(updater.get_spec(name, version))
+        
+    if dirty:
+        output.sort()
+        updater.write_requirements(output)
+
+def add_dev(packages):
+    update_dependency(DevUpdater(), added=packages)
+    
+def add_prod(packages):
+    update_dependency(ProdUpdater(), added=packages)
+
+def delete(packages):
+    update_dependency(DevUpdater(), removed=packages)
+    update_dependency(ProdUpdater(), removed=packages)
     
 def detect_indent(text):
     for line in text.split("\n"):

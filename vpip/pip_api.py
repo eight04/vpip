@@ -6,14 +6,17 @@ from argparse import Namespace
 import case_conversion
 
 def install(package):
-    execute("pip install {}".format(package))
+    execute("python -m pip --no-color install {}".format(package))
     return show(package)
     
 def install_requirements():
-    execute("pip install -r requirements.txt")
+    execute("python -m pip --no-color install -r requirements.txt")
+    
+def uninstall(package):
+    execute("python -m pip --no-color uninstall -y {}".format(package))
     
 def show(package):
-    output = execute("pip show --verbose {}".format(package), print_stdout=False)
+    output = execute("python -m pip --no-color show --verbose {}".format(package), print_stdout=False)
     ns = Namespace()
     last_name = None
     for line in output:
@@ -40,6 +43,6 @@ def execute(cmd, print_stdout=True):
                 sys.stdout.write(line)
             output.append(line)
     if process.returncode:
-        raise Exception("failed to execute pip: {}".format(cmd))
+        raise subprocess.CalledProcessError(process.returncode, cmd)
     return output
     

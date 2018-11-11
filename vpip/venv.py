@@ -9,6 +9,10 @@ def get_global_folder(pkg_name):
 class Venv:
     def __init__(self, path):
         self.path = os.path.abspath(path)
+        self.new_env_path = "{};{}".format(
+            self.get_bin_path(),
+            os.environ.get("_old_virtual_path", os.environ["path"])
+        )
         self.old_env_path = os.environ["path"]
         
     def exists(self):
@@ -17,7 +21,7 @@ class Venv:
     @contextmanager
     def activate(self):
         try:
-            os.environ["path"] = "{};{}".format(self.get_bin_path(), self.old_env_path)
+            os.environ["path"] = self.new_env_path
             yield
         finally:
             self.deactivate()
@@ -30,8 +34,7 @@ class Venv:
             venv.create(self.path, with_pip=True)
         
     def destroy(self):
-        print(self.path)
-        # shutil.rmtree(self.path)
+        shutil.rmtree(self.path)
         
     def get_bin_path(self):
         if os.name == "nt":

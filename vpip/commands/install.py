@@ -2,7 +2,7 @@ from .. import venv
 from .. import pip_api
 from .. import dependency
 
-help = "Install package and save to production dependencies (setup.cfg)"
+help = "Install package and save to dependencies"
 options = [
     {
         "type": "exclusive_group",
@@ -41,31 +41,27 @@ def install_global(packages):
     for pkg in packages:
         vv = venv.Venv(venv.get_global_folder(pkg))
         existed = vv.exists()
+        vv.create()
         try:
-            vv.create()
-            vv.activate()
-            pip_api.install(pkg)
+            with vv.activate():
+                pip_api.install(pkg)
         except Exception:
             if not existed:
                 vv.destroy()
             raise
-        finally:
-            vv.deactivate()
 
 def install_local(packages, dev=False):
     vv = venv.Venv(".venv")
     vv.create()
-    installed = []
+    installed = {}
     with vv.activate():
-        # print(packages)
         for pkg in packages:
             result = pip_api.install(pkg)
-            installed.append(result)
-            # packages[pkg] = result.version
+            installed[pkg] = result.version
     if dev:
-        dependency.update_dev(installed)
+        dependency.add_dev(installed)
     else:
-        dependency.update_prod(installed)
+        dependency.add_prod(installed)
 
 def install_requirements():
     vv = venv.Venv(".venv")
