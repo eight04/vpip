@@ -1,11 +1,10 @@
-import os
 import re
 import importlib
-import pkg_resources
+from pkg_resources import resource_listdir
 
 names = [
     filename.partition(".")[0]
-    for filename in pkg_resources.resource_listdir(__name__, "")
+    for filename in resource_listdir(__name__, "")
     if re.match("[a-z]\w+\.py", filename)
 ]
 
