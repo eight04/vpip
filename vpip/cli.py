@@ -1,5 +1,4 @@
 import argparse
-import importlib
 import sys
 
 from . import commands
@@ -16,7 +15,7 @@ def cli():
     modules = commands.get_modules()
     for name, module in modules.items():
         command = subparsers.add_parser(name, help=module.help)
-        add_arguments(command, module.options)
+        add_arguments(command, getattr(module, "options"))
     ns, extra = parser.parse_known_args(args)
     
     module = modules[ns.COMMAND]
@@ -25,7 +24,7 @@ def cli():
     elif not extra:
         module.run(ns)
     else:
-        parser.error('unregonized arguments: {}'.format(' '.join(extra)))
+        parser.error('unreconized arguments: {}'.format(' '.join(extra)))
     
 def add_arguments(target, options):
     for option in options:
