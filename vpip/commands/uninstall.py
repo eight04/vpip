@@ -1,0 +1,2 @@
+help = "Uninstall packages"
+options = []
