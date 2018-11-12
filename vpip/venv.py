@@ -5,8 +5,13 @@ import sys
 import venv
 from contextlib import contextmanager
 
+def get_script_folder(base):
+    if os.name == "nt":
+        return os.path.join(base, "Scripts")
+    return os.path.join(base, "bin")
+    
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
-GLOBAL_SCRIPT_FOLDER = os.path.join(sys.prefix, "Scripts" if os.name == "nt" else "bin")
+GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.prefix)
 
 def get_global_folder(pkg_name):
     return os.path.join(GLOBAL_FOLDER, pkg_name)
@@ -44,7 +49,7 @@ class Venv:
         self.old_env_dir = os.environ.get("VIRTUAL_ENV")
         
         self.path = "{};{}".format(
-            self.get_bin_path(),
+            get_script_folder(self.env_dir),
             get_path_without_venv(os.environ["path"], self.old_env_dir)
         )
         self.old_path = os.environ["path"]
@@ -80,7 +85,3 @@ class Venv:
     def destroy(self):
         shutil.rmtree(self.env_dir)
         
-    def get_bin_path(self):
-        if os.name == "nt":
-            return os.path.join(self.env_dir, "Scripts")
-        return os.path.join(self.env_dir, "bin")
