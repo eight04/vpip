@@ -12,13 +12,14 @@ def run(ns, extra):
         if not extra:
             cmd = get_shell_executable()
         elif extra == ["python"]:
+            # FIXME: can't run python with shell?
+            # https://bugs.python.org/issue35217
             cmd = extra
         else:
             cmd = list2cmdline(extra)
         try:
             execute(cmd)
         except CalledProcessError as err:
-            print(err)
             exit(err.returncode)
     
 def get_shell_executable():

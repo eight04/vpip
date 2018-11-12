@@ -43,6 +43,8 @@ def install_global(packages):
         try:
             with vv.activate(True):
                 pip_api.install(pkg)
+                info = pip_api.show(pkg)
+                breakpoint()
         except Exception:
             vv.destroy()
             raise

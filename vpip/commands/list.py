@@ -15,7 +15,7 @@ def run(ns):
 
     if ns.global_:
         for dir in Path(venv.GLOBAL_FOLDER).iterdir():
-            print(dir)
+            print(dir.name)
     else:
         vv = venv.get_current_venv()
         with vv.activate():
