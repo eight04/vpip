@@ -44,6 +44,7 @@ def install_global(packages):
         vv.create()
         try:
             with vv.activate():
+                breakpoint()
                 pip_api.install(pkg)
         except Exception:
             if not existed:

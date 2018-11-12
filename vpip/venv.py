@@ -1,42 +1,71 @@
 import os
+import re
 import shutil
 import venv
 from contextlib import contextmanager
 
 def get_global_folder(pkg_name):
     return os.path.expanduser("~/.vpip/pkg_venvs/{}".format(pkg_name))
+    
+def get_path_without_venv(path, venv_dir):
+    if not venv_dir:
+        return path
+    return ";".join(p for p in re.split("\s*;\s*", path)
+                    if not p.startswith(venv_dir))
+    
+class Builder(venv.EnvBuilder):
+    def ensure_directories(self, env_dir):
+        context = super().ensure_directories(env_dir)
+        current_venv = os.environ.get("VIRTUAL_ENV")
+        if current_venv:
+            clean_path = get_path_without_venv(os.environ["path"], current_venv)
+            # find executable that is not in the current virtual env
+            # https://github.com/python/cpython/blob/cd449806fac1246cb7b4d392026fe6986ec01fb7/Lib/venv/__init__.py#L113-L116
+            executable = shutil.which("python", path=clean_path)
+            dirname, exename = os.path.split(executable)
+            context.executable = executable
+            context.python_dir = dirname
+            context.python_exe = exename
+        return context
 
 class Venv:
-    def __init__(self, path):
-        self.path = os.path.abspath(path)
-        self.new_env_path = "{};{}".format(
+    def __init__(self, env_dir):
+        self.env_dir = os.path.abspath(env_dir)
+        self.old_env_dir = os.environ.get("VIRTUAL_ENV")
+        
+        self.path = "{};{}".format(
             self.get_bin_path(),
-            os.environ.get("_old_virtual_path", os.environ["path"])
+            get_path_without_venv(os.environ["path"], self.old_env_dir)
         )
-        self.old_env_path = os.environ["path"]
+        self.old_path = os.environ["path"]
         
     def exists(self):
-        return os.path.exists(self.path)
+        return os.path.exists(self.env_dir)
     
     @contextmanager
     def activate(self):
         try:
-            os.environ["path"] = self.new_env_path
+            os.environ["PATH"] = self.path
+            os.environ["VIRTUAL_ENV"] = self.env_dir
             yield
         finally:
             self.deactivate()
         
     def deactivate(self):
-        os.environ["path"] = self.old_env_path
+        os.environ["PATH"] = self.old_path
+        if self.old_env_dir:
+            os.environ["VIRTUAL_ENV"] = self.old_env_dir
+        else:
+            del os.environ["VIRTUAL_ENV"]
     
     def create(self):
         if not self.exists():
-            venv.create(self.path, with_pip=True)
+            Builder(with_pip=True).create(self.env_dir)
         
     def destroy(self):
-        shutil.rmtree(self.path)
+        shutil.rmtree(self.env_dir)
         
     def get_bin_path(self):
         if os.name == "nt":
-            return os.path.join(self.path, "Scripts")
-        return os.path.join(self.path, "bin")
+            return os.path.join(self.env_dir, "Scripts")
+        return os.path.join(self.env_dir, "bin")
