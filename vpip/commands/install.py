@@ -42,8 +42,8 @@ def install_global(packages):
             continue
         try:
             with vv.activate(True):
-                # FIXME: switch to install_scripts when the following bug is fixed
-                # ...
+                # TODO: make pip support install_scripts
+                # https://github.com/pypa/pip/issues/3934
                 # pip_api.install(pkg, install_scripts=venv.GLOBAL_SCRIPT_FOLDER)
                 pip_api.install(pkg)
                 link_console_script(pkg)
