@@ -4,33 +4,20 @@ vpip
 .. image:: https://travis-ci.org/eight04/vpip.svg?branch=master
     :target: https://travis-ci.org/eight04/vpip
 
-> vpip = virtualenv + pipm
+..
+    
+    ``vpip`` = `venv <https://docs.python.org/3/library/venv.html>`_ + `pipm <https://github.com/jnoortheen/pipm>`_
 
-A CLI which aims to provide an `npm`-like experience when installing Python packages.
+A CLI which aims to provide an ``npm``-like experience when installing Python packages.
 
-Problems when installing python packages
-----------------------------------------
+Features
+--------
 
-Dependency conflict
-~~~~~~~~~~~~~~~~~~~
-
-For example, if ``A`` requires ``C@0.1.0`` but ``B`` requires ``C@0.2.0``, then you would get a dependency conflict when installing both packages into the same computer::
-
-    pip install A B
-
-By using ``vpip install -g A B``, ``vpip`` installs each package to an isolated virtualenv so they won't conflict with each other.
-
-Project isolation
-~~~~~~~~~~~~~~~~~
-
-``pip`` installs packages globally into the site-packages folder. If you are developing two different projects that require the same package with different versions, you have to re-install ``requirements.txt`` when switching projects in order to make sure you are using the correct version. Which also means you won't be able to develop these two projects at the same time.
-
-``vpip`` installs packages to a local ``.venv`` folder instead of the global site-packages so you can work with multiple projects in isolated virtualenvs at the same time.
-
-Add/update/delete project dependency
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When changing a project dependency, ``vpip`` would also modify ``requirements.txt`` (development dependency) or ``setup.cfg`` (production dependency) similar to [pipm](https://github.com/jnoortheen/pipm).
+* Install packages to isolated global virtual environments. Install multiple CLI utilities without conflict with each other.
+* Install packages to a local virtual environment. ``requirements.txt`` and ``setup.cfg`` are updated automatically.
+* Easily run commands in the local virtual environment.
+* Development dependencies are pinned and production dependencies are saved as a compatible range.
+* No lock file.
 
 Installation
 ------------
@@ -39,7 +26,38 @@ Installation
 
     pip install vpip
     
-This would install `vpip` and its dependencies (`virtualenv`, `vex`, etc) to the global site-packages folder.
+Usage example
+-------------
+
+Install:
+
+* ``vpip install`` - Create/activate a local venv and install all dependencies.
+* ``vpip install configupdater`` - Create/activate a local venv, install ``configupdater``, and add to production dependency.
+* ``vpip install -g youtube-dl`` - Create a venv under ``~/.vpip``, install ``youtube-dl``, and link the executable (``youtube-dl.exe``) to the script folder.
+
+Uninstall:
+
+* ``vpip uninstall pylint`` - Activate the local venv, uninstall ``pylint``, and remove ``pylint`` from both dev/prod dependency.
+
+Update:
+
+* ``vpip update pylint`` - Upgrade pylint to the compatible version.
+* ``vpip update pylint --latest`` - Upgrade pylint to the latest release.
+
+Execute command:
+
+* ``vpip run python`` - Launch python REPL in the local venv.
+* ``vpip run pylint my_proj`` - Run pylint installed in the local venv.
+
+Compatibility
+--------------
+
+This CLI currently is only tested on Windows.
+
+Documentation
+-------------
+
+TBD
 
 Changelog
 ---------
