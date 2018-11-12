@@ -52,7 +52,7 @@ Execute command:
 Compatibility
 --------------
 
-This CLI currently is only tested on Windows.
+Currently, this CLI is only tested on Windows.
 
 Documentation
 -------------
