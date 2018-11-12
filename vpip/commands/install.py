@@ -1,7 +1,3 @@
-from .. import venv
-from .. import pip_api
-from .. import dependency
-
 help = "Install package and save to dependencies"
 options = [
     {
@@ -35,25 +31,25 @@ def run(ns):
     elif ns.PACKAGE:
         install_local(ns.PACKAGE, dev=ns.save_dev)
     else:
-        install_requirements()
+        install_local_requirements()
 
 def install_global(packages):
+    from .. import venv, pip_api
     for pkg in packages:
-        vv = venv.Venv(venv.get_global_folder(pkg))
-        existed = vv.exists()
-        vv.create()
+        vv = venv.get_global_pkg_venv(pkg)
+        if vv.exists():
+            print("{} is already installed, skipped...".format(pkg))
+            continue
         try:
             with vv.activate():
-                breakpoint()
                 pip_api.install(pkg)
         except Exception:
-            if not existed:
-                vv.destroy()
+            vv.destroy()
             raise
 
 def install_local(packages, dev=False):
-    vv = venv.Venv(".venv")
-    vv.create()
+    from .. import venv, pip_api, dependency
+    vv = venv.get_current_venv()
     installed = {}
     with vv.activate():
         for pkg in packages:
@@ -64,7 +60,9 @@ def install_local(packages, dev=False):
     else:
         dependency.add_prod(installed)
 
-def install_requirements():
-    vv = venv.Venv(".venv")
-    vv.create()
-    pip_api.install_requirements()
+def install_local_requirements():
+    from .. import venv, pip_api
+    vv = venv.get_current_venv()
+    with vv.activate():
+        pip_api.install_requirements()
+        pip_api.install_editable()

@@ -1,9 +1,3 @@
-import shutil
-
-from .. import venv
-from .. import pip_api
-from .. import dependency
-
 help = "Uninstall packages and delete from dependencies"
 options = [
     {
@@ -20,11 +14,16 @@ options = [
 ]
 
 def run(ns):
+    import shutil
+    from .. import venv, pip_api, dependency
+
     if ns.global_:
         for pkg in ns.PACKAGE:
             shutil.rmtree(venv.get_global_folder(pkg), ignore_errors=True)
     else:
-        for pkg in ns.PACKAGE:
-            pip_api.uninstall(pkg)
+        vv = venv.get_current_venv()
+        with vv.activate():
+            for pkg in ns.PACKAGE:
+                pip_api.uninstall(pkg)
         dependency.delete(ns.PACKAGE)
     

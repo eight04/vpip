@@ -1,6 +1,5 @@
 import re
 import subprocess
-import sys
 from argparse import Namespace
 
 import case_conversion
@@ -12,14 +11,16 @@ def install(package):
 def install_requirements():
     execute("python -m pip --no-color install -r requirements.txt")
     
+def install_editable():
+    execute("python -m pip --no-color install -e .")
+    
 def uninstall(package):
     execute("python -m pip --no-color uninstall -y {}".format(package))
     
 def show(package):
-    output = execute("python -m pip --no-color show --verbose {}".format(package), print_stdout=False)
     ns = Namespace()
     last_name = None
-    for line in output:
+    for line in execute("python -m pip --no-color show --verbose {}".format(package), True):
         match = re.match("([\w-]+):\s*(.*)", line)
         if match:
             name, value = match.groups()
@@ -35,14 +36,15 @@ def show(package):
             continue
     return ns
     
-def execute(cmd, print_stdout=True):
-    output = []
-    with subprocess.Popen(cmd, stdout=subprocess.PIPE, encoding="utf8", shell=True) as process:
-        for line in process.stdout:
-            if print_stdout:
-                sys.stdout.write(line)
-            output.append(line)
+def list():
+    execute("python -m pip --no-color list")
+    
+def execute(cmd, capture=False):
+    stdout = subprocess.PIPE if capture else None
+    with subprocess.Popen(cmd, stdout=stdout, encoding="utf8", shell=True) as process:
+        if capture:
+            for line in process.stdout:
+                yield line
     if process.returncode:
         raise subprocess.CalledProcessError(process.returncode, cmd)
-    return output
     

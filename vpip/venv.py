@@ -4,14 +4,22 @@ import shutil
 import venv
 from contextlib import contextmanager
 
+GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
+
 def get_global_folder(pkg_name):
-    return os.path.expanduser("~/.vpip/pkg_venvs/{}".format(pkg_name))
+    return os.path.join(GLOBAL_FOLDER, pkg_name)
     
 def get_path_without_venv(path, venv_dir):
     if not venv_dir:
         return path
     return ";".join(p for p in re.split("\s*;\s*", path)
                     if not p.startswith(venv_dir))
+                    
+def get_current_venv():
+    return Venv(".venv")
+    
+def get_global_pkg_venv(pkg):
+    return Venv(get_global_folder(pkg))
     
 class Builder(venv.EnvBuilder):
     def ensure_directories(self, env_dir):
@@ -45,6 +53,7 @@ class Venv:
     @contextmanager
     def activate(self):
         try:
+            self.create()
             os.environ["PATH"] = self.path
             os.environ["VIRTUAL_ENV"] = self.env_dir
             yield
