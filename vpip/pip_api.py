@@ -49,6 +49,6 @@ def execute(cmd, capture=False):
         if process.returncode:
             raise subprocess.CalledProcessError(process.returncode, cmd)
     if capture:
-        return gen_output()
+        return do_execute()
     list(do_execute())
     
