@@ -38,13 +38,15 @@ def install_global(packages):
     for pkg in packages:
         vv = venv.get_global_pkg_venv(pkg)
         if vv.exists():
-            print("{} is already installed, skipped...".format(pkg))
+            print("{} is already installed".format(pkg))
             continue
         try:
             with vv.activate(True):
+                # FIXME: switch to install_scripts when the following bug is fixed
+                # ...
+                # pip_api.install(pkg, install_scripts=venv.GLOBAL_SCRIPT_FOLDER)
                 pip_api.install(pkg)
-                info = pip_api.show(pkg)
-                breakpoint()
+                link_console_script(pkg)
         except Exception:
             vv.destroy()
             raise
@@ -68,3 +70,31 @@ def install_local_requirements():
     with vv.activate(True):
         pip_api.install_requirements()
         pip_api.install_editable()
+
+def link_console_script(pkg):
+    import shutil
+    import os
+    from configparser import ConfigParser
+    from pathlib import Path
+    from .. import pip_api, venv
+    # should be called inside a venv
+    # link console script to GLOBAL_SCRIPT_FOLDER so they can be accessed outside of the venv
+    entry_points = pip_api.show(pkg).entry_points
+    config = ConfigParser()
+    config.read_string(entry_points)
+    if "console_scripts" not in config:
+        return
+    for executable in config["console_scripts"]:
+        full_path = shutil.which(executable)
+        if not full_path:
+            print("unable to access console script {}".format(executable))
+            continue
+        filename = os.path.split(full_path)[1]
+        dest = os.path.join(venv.GLOBAL_SCRIPT_FOLDER, filename)
+        print("link console script '{}'".format(filename))
+        if Path(dest).exists():
+            if input("script already exists, overwrite? [y/N]").strip().lower() == "y":
+                Path(dest).unlink()
+            else:
+                continue
+        os.link(full_path, dest)

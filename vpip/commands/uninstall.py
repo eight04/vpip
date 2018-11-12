@@ -20,15 +20,15 @@ def run(ns):
         uninstall_local(ns.PACKAGE)
     
 def uninstall_global(packages):
-    import os
+    # import os
     import shutil
     from .. import venv
 
     for pkg in packages:
         print("removing {}...".format(pkg))
         folder = venv.get_global_folder(pkg)
-        shutil.rmtree(folder, ignore_errors=True)
-        os.rmdir(folder)
+        shutil.rmtree(folder)
+        # os.rmdir(folder)
     
 def uninstall_local(packages):
     from .. import venv, pip_api, dependency

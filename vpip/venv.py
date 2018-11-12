@@ -1,10 +1,12 @@
 import os
 import re
 import shutil
+import sys
 import venv
 from contextlib import contextmanager
 
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
+GLOBAL_SCRIPT_FOLDER = os.path.join(sys.prefix, "Scripts" if os.name == "nt" else "bin")
 
 def get_global_folder(pkg_name):
     return os.path.join(GLOBAL_FOLDER, pkg_name)
@@ -68,7 +70,7 @@ class Venv:
         os.environ["PATH"] = self.old_path
         if self.old_env_dir:
             os.environ["VIRTUAL_ENV"] = self.old_env_dir
-        else:
+        elif "VIRTUAL_ENV" in os.environ:
             del os.environ["VIRTUAL_ENV"]
     
     def create(self):

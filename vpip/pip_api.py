@@ -5,8 +5,11 @@ import case_conversion
 
 from .execute import execute
 
-def install(package):
-    execute_pip("install {}".format(package))
+def install(package, install_scripts=None):
+    cmd = "install"
+    if install_scripts:
+        cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
+    execute_pip("{} {}".format(cmd, package))
     return show(package)
     
 def install_requirements():

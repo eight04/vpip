@@ -6,6 +6,7 @@ def run(ns, extra):
     from subprocess import list2cmdline, CalledProcessError
     from .. import venv
     from ..execute import execute
+    # breakpoint()
     
     vv = venv.get_current_venv()
     with vv.activate():
