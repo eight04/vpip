@@ -41,7 +41,7 @@ def install_global(packages):
             print("{} is already installed, skipped...".format(pkg))
             continue
         try:
-            with vv.activate():
+            with vv.activate(True):
                 pip_api.install(pkg)
         except Exception:
             vv.destroy()
@@ -51,7 +51,7 @@ def install_local(packages, dev=False):
     from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
     installed = {}
-    with vv.activate():
+    with vv.activate(True):
         for pkg in packages:
             result = pip_api.install(pkg)
             installed[pkg] = result.version
@@ -63,6 +63,6 @@ def install_local(packages, dev=False):
 def install_local_requirements():
     from .. import venv, pip_api
     vv = venv.get_current_venv()
-    with vv.activate():
+    with vv.activate(True):
         pip_api.install_requirements()
         pip_api.install_editable()

@@ -51,9 +51,13 @@ class Venv:
         return os.path.exists(self.env_dir)
     
     @contextmanager
-    def activate(self):
+    def activate(self, auto_create=False):
         try:
-            self.create()
+            if not self.exists():
+                if auto_create:
+                    self.create()
+                else:
+                    raise Exception(".venv folder doesn't exists")
             os.environ["PATH"] = self.path
             os.environ["VIRTUAL_ENV"] = self.env_dir
             yield
@@ -68,8 +72,8 @@ class Venv:
             del os.environ["VIRTUAL_ENV"]
     
     def create(self):
-        if not self.exists():
-            Builder(with_pip=True).create(self.env_dir)
+        print("building venv at {}".format(self.env_dir))
+        Builder(with_pip=True).create(self.env_dir)
         
     def destroy(self):
         shutil.rmtree(self.env_dir)
