@@ -40,6 +40,9 @@ def show(package):
 def list_():
     execute_pip("list")
     
-def execute_pip(cmd, *args):
-    return execute("python -m pip --no-color " + cmd, *args)
+def execute_pip(cmd, capture=False):
+    prefix = "python -m pip "
+    if capture:
+        prefix += "--no-color "
+    return execute(prefix + cmd, capture)
     

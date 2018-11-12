@@ -20,7 +20,7 @@ class DevUpdater:
         return "{}=={}".format(name, version)
         
     def write_requirements(self, lines):
-        with self.file.open("w", "utf8") as f:
+        with self.file.open("w", encoding="utf8") as f:
             for line in lines:
                 f.write(line + "\n")
                 

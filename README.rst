@@ -4,7 +4,7 @@ vpip
 .. image:: https://travis-ci.org/eight04/vpip.svg?branch=master
     :target: https://travis-ci.org/eight04/vpip
 
-    vpip = virtualenv + pipm
+> vpip = virtualenv + pipm
 
 A CLI which aims to provide an `npm`-like experience when installing Python packages.
 
