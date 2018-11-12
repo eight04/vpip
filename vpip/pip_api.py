@@ -36,15 +36,19 @@ def show(package):
             continue
     return ns
     
-def list():
+def list_():
     execute("python -m pip --no-color list")
     
 def execute(cmd, capture=False):
-    stdout = subprocess.PIPE if capture else None
-    with subprocess.Popen(cmd, stdout=stdout, encoding="utf8", shell=True) as process:
-        if capture:
-            for line in process.stdout:
-                yield line
-    if process.returncode:
-        raise subprocess.CalledProcessError(process.returncode, cmd)
+    def do_execute():
+        stdout = subprocess.PIPE if capture else None
+        with subprocess.Popen(cmd, stdout=stdout, encoding="utf8", shell=True) as process:
+            if capture:
+                for line in process.stdout:
+                    yield line
+        if process.returncode:
+            raise subprocess.CalledProcessError(process.returncode, cmd)
+    if capture:
+        return gen_output()
+    list(do_execute())
     

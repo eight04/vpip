@@ -19,6 +19,6 @@ def run(ns):
     else:
         vv = venv.get_current_venv()
         with vv.activate():
-            pip_api.list()
+            pip_api.list_()
         
         
