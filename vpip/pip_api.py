@@ -1,3 +1,4 @@
+import json
 import re
 from argparse import Namespace
 
@@ -21,10 +22,13 @@ def install_editable():
 def uninstall(package):
     execute_pip("uninstall -y {}".format(package))
     
-def show(package):
+def show(package, verbose=False):
+    cmd = "show"
+    if verbose:
+        cmd += " --verbose"
     ns = Namespace()
     last_name = None
-    for line in execute_pip("show --verbose {}".format(package), True):
+    for line in execute_pip("{} {}".format(cmd, package), True):
         match = re.match("([\w-]+):\s*(.*)", line)
         if match:
             name, value = match.groups()
@@ -41,8 +45,17 @@ def show(package):
     return ns
     
 def list_():
-    execute_pip("list")
+    lines = []
+    for line in execute_pip("list --format json", capture=True):
+        lines.append(line)
+    return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
     
+def create_ns_from_dict(d):
+    ns = Namespace()
+    for key, value in d.items():
+        setattr(ns, key, value)
+    return ns
+
 def execute_pip(cmd, capture=False):
     prefix = "python -m pip "
     if capture:

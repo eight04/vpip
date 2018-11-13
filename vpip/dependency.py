@@ -5,6 +5,12 @@ from pathlib import Path
 from configupdater import ConfigUpdater
 from pkg_resources import parse_requirements
 
+def get_dev_requires():
+    return parse_requirements(DevUpdater().get_requirements())
+    
+def get_prod_requires():
+    return parse_requirements(ProdUpdater().get_requirements())
+
 class DevUpdater:
     def __init__(self):
         self.file = Path("requirements.txt")
