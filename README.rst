@@ -49,6 +49,12 @@ Execute command:
 * ``vpip run python`` - Launch python REPL in the local venv.
 * ``vpip run pylint my_proj`` - Run pylint installed in the local venv.
 
+List dependencies:
+
+* ``vpip list`` - List development/production dependencies.
+* ``vpip list --outdated`` - List development/production dependencies that are outdated.
+* ``vpip list -g`` - List globally installed packages.
+
 Compatibility
 --------------
 
@@ -62,7 +68,7 @@ TBD
 Changelog
 ---------
 
-* 0.1.0 (Next)
+* 0.1.0 (Nov 13, 2018)
 
     - First release
     
