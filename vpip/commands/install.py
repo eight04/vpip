@@ -68,8 +68,8 @@ def install_local_requirements():
     from .. import venv, pip_api
     vv = venv.get_current_venv()
     with vv.activate(True):
-        pip_api.install_requirements()
         pip_api.install_editable()
+        pip_api.install_requirements()
 
 def link_console_script(pkg):
     import shutil

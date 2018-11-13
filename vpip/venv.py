@@ -5,6 +5,8 @@ import sys
 import venv
 from contextlib import contextmanager
 
+from .execute import execute
+
 def get_script_folder(base):
     if os.name == "nt":
         return os.path.join(base, "Scripts")
@@ -42,6 +44,11 @@ class Builder(venv.EnvBuilder):
             context.python_dir = dirname
             context.python_exe = exename
         return context
+        
+    def post_setup(self, context):
+        # update pip to latest
+        execute([context.env_exe, "-Im", "pip", "install", "-U", "pip"])        
+        
 
 class Venv:
     def __init__(self, env_dir):
