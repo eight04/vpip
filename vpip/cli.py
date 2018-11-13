@@ -7,10 +7,9 @@ from pathlib import Path
 from . import commands
 
 def cli():
-    # set_subparser_fallback(subparsers, fallback)
     patch_argparse()
         
-    parser = argparse.ArgumentParser(prog="vpip")
+    parser = argparse.ArgumentParser(prog="vpip", description="A CLI which aims to provide an npm-like experience when installing Python packages.")
     args = sys.argv[1:]
     
     def fallback(values):
@@ -30,7 +29,8 @@ def cli():
         
     modules = commands.get_modules()
     for name, module in modules.items():
-        command = subparsers.add_parser(name, help=module.help)
+        command = subparsers.add_parser(
+            name, help=module.help, description="{}.".format(module.help))
         add_arguments(command, getattr(module, "options"))
         
     ns, extra = parser.parse_known_args(args)

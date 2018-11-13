@@ -12,7 +12,8 @@ options = [
             {
                 "name": ["-D", "--save-dev"],
                 "action": "store_true",
-                "help": "Save to development dependencies (requirements.txt)"
+                "help": "Save to development dependencies (requirements.txt) "
+                        "instead of production dependencies (setup.cfg)"
             }
         ]
     },

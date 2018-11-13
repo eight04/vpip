@@ -1,6 +1,6 @@
 from . import list as list_
 
-help = "List outdated packages"
+help = "List outdated dependencies"
 options = [
     {
         "name": ["-g", "--global"],

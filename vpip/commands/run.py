@@ -1,4 +1,4 @@
-help = "Run commands in the venv shell"
+help = "Run command inside the venv"
 options = []
 allow_unknown = True
 
