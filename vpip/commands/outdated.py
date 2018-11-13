@@ -1,3 +1,5 @@
+"""This command is just a shortcut of ``vpip list --outdated``."""
+
 from . import list as list_
 
 help = "List outdated dependencies"
