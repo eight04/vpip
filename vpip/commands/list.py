@@ -24,12 +24,11 @@ def iter_global_packages():
     
     :rtype: Iterator[PackageInfo]
     """
-    from pathlib import Path
     from .. import venv, pip_api
-    for dir in Path(venv.GLOBAL_FOLDER).iterdir():
-        vv = venv.get_global_pkg_venv(dir.name)
+    for name in venv.iter_global_packages():
+        vv = venv.get_global_pkg_venv(name)
         with vv.activate():
-            yield PackageInfo(dir.name, pip_api.show(dir.name).version)
+            yield PackageInfo(name, pip_api.show(name).version)
             
 def print_global_packages(check_outdated=False):
     for info in iter_global_packages():

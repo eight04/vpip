@@ -21,7 +21,6 @@ def run(ns):
     
 def uninstall_global(packages):
     """Uninstall global packages."""
-    import shutil
     from .. import venv
 
     for pkg in packages:

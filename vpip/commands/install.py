@@ -34,15 +34,19 @@ def run(ns):
     else:
         install_local_first_time()
 
-def install_global(packages):
+def install_global(packages, upgrade=False, latest=False):
     """Install global packages.
     
     :arg list[str] packages: List of package name.
+    :arg bool upgrade: Upgrade package. By default, the function skipped
+        already installed packages.
+    :arg bool latest: Upgrade to the latest version. By default, only
+        compatible versions are selected.
     """
     from .. import venv, pip_api
     for pkg in packages:
         vv = venv.get_global_pkg_venv(pkg)
-        if vv.exists():
+        if vv.exists() and not upgrade:
             print("{} is already installed".format(pkg))
             continue
         try:
@@ -50,13 +54,13 @@ def install_global(packages):
                 # TODO: make pip support install_scripts
                 # https://github.com/pypa/pip/issues/3934
                 # pip_api.install(pkg, install_scripts=venv.GLOBAL_SCRIPT_FOLDER)
-                pip_api.install(pkg)
+                pip_api.install(pkg, upgrade=upgrade, latest=latest)
                 link_console_script(pkg)
         except Exception:
             vv.destroy()
             raise
 
-def install_local(packages, dev=False):
+def install_local(packages, dev=False, **kwargs):
     """Install local packages and save to dependency.
     
     :arg list[str] packages: List of package name.
@@ -68,7 +72,7 @@ def install_local(packages, dev=False):
     installed = {}
     with vv.activate(True):
         for pkg in packages:
-            result = pip_api.install(pkg)
+            result = pip_api.install(pkg, **kwargs)
             installed[pkg] = result.version
     if dev:
         dependency.add_dev(installed)

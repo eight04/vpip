@@ -4,6 +4,7 @@ import shutil
 import sys
 import venv
 from contextlib import contextmanager
+from pathlib import Path
 
 from .execute import execute
 
@@ -19,6 +20,10 @@ GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.prefix)
 
 def get_global_folder(pkg_name):
     return os.path.join(GLOBAL_FOLDER, pkg_name)
+    
+def iter_global_packages():
+    for dir in Path(GLOBAL_FOLDER).iterdir():
+        yield dir.name
     
 def get_path_without_venv(path, venv_dir):
     if not venv_dir:

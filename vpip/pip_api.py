@@ -3,26 +3,41 @@
 import json
 import re
 from argparse import Namespace
+from subprocess import CalledProcessError
 
 import case_conversion
 from pkg_resources import Requirement
 
 from .execute import execute
 
-def install(package, install_scripts=None):
+def install(package, install_scripts=None, upgrade=False, latest=False):
     """Install a package and return the package info.
     
     :arg str package: Package name. It may include the version specifier.
     :arg str install_scripts: Install scripts to a different folder. It uses
         the ``--install-option="--install-scripts=..."`` pip option.
+    :arg bool upgrade: Upgrade package.
+    :arg bool latest: Whether upgrade to the latest version. Otherwise upgrade
+        to the compatible version. This option has no effect if ``package``
+        includes specifiers.
     :return: Package information returned by :func:`show`.
     :rtype: Namespace
     """
     cmd = "install"
+    require = Requirement.parse(package)
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
+    if upgrade:
+        cmd += " -U"
+        if not latest and not require.specs:
+            try:
+                version = show(require.name).version
+            except CalledProcessError:
+                pass
+            else:
+                package = "{}~={}".format(require.name, get_compatible_version(version))
     execute_pip("{} {}".format(cmd, package))
-    return show(Requirement.parse(package).name)
+    return show(require.name)
     
 def install_requirements():
     """Install ``requirements.txt`` file."""
@@ -92,4 +107,9 @@ def execute_pip(cmd, capture=False):
     if capture:
         prefix += "--no-color "
     return execute(prefix + cmd, capture)
+    
+def get_compatible_version(version):
+    if version.startswith("0."):
+        return version
+    return ".".join(version.split(".")[:2])
     
