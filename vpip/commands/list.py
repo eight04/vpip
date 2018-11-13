@@ -18,15 +18,25 @@ def run(ns):
         print_global_packages(check_outdated=ns.outdated)
     else:
         print_local_packages(check_outdated=ns.outdated)
-            
-def print_global_packages(check_outdated=False):
+        
+def iter_global_packages():
+    """Iterate through globally installed packages.
+    
+    :rtype: Iterator[PackageInfo]
+    """
     from pathlib import Path
     from .. import venv, pip_api
     for dir in Path(venv.GLOBAL_FOLDER).iterdir():
         vv = venv.get_global_pkg_venv(dir.name)
         with vv.activate():
-            print(PackageInfo(dir.name, pip_api.show(dir.name).version, check_outdated=check_outdated))
+            yield PackageInfo(dir.name, pip_api.show(dir.name).version)
             
+def print_global_packages(check_outdated=False):
+    for info in iter_global_packages():
+        if check_outdated and not info.check_update():
+            continue
+        print(info)
+        
 def print_local_packages(check_outdated=False):
     from packaging.utils import canonicalize_name
     from .. import venv, pip_api, dependency
@@ -43,10 +53,9 @@ def print_local_packages(check_outdated=False):
         for require in requires:
             info = PackageInfo(
                 require.name,
-                installed.get(canonicalize_name(require.name)),
-                check_outdated
+                installed.get(canonicalize_name(require.name))
             )
-            if check_outdated and not info.update_result:
+            if check_outdated and not info.check_update():
                 continue
             yield info
         
@@ -67,14 +76,17 @@ def print_local_packages(check_outdated=False):
         prod_count += 1
 
 class PackageInfo:
-    def __init__(self, name, version, check_outdated=False):
+    def __init__(self, name, version=None):
         self.name = name
         self.version = version
         self.update_result = None
-        
-        if check_outdated and version:
-            from .. import pypi
-            self.update_result = pypi.check_update(name, version)
+            
+    def check_update(self):
+        if not self.version:
+            return False
+        from .. import pypi
+        self.update_result = pypi.check_update(self.name, self.version)
+        return self.update_result is not None
             
     def __str__(self):
         lines = []

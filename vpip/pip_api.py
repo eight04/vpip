@@ -1,28 +1,55 @@
+"""pip command API."""
+
 import json
 import re
 from argparse import Namespace
 
 import case_conversion
+from pkg_resources import Requirement
 
 from .execute import execute
 
 def install(package, install_scripts=None):
+    """Install a package and return the package info.
+    
+    :arg str package: Package name. It may include the version specifier.
+    :arg str install_scripts: Install scripts to a different folder. It uses
+        the ``--install-option="--install-scripts=..."`` pip option.
+    :return: Package information returned by :func:`show`.
+    :rtype: Namespace
+    """
     cmd = "install"
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
     execute_pip("{} {}".format(cmd, package))
-    return show(package)
+    return show(Requirement.parse(package).name)
     
 def install_requirements():
+    """Install ``requirements.txt`` file."""
     execute_pip("install -r requirements.txt")
     
 def install_editable():
+    """Install the current cwd as editable package."""
     execute_pip("install -e .")
     
 def uninstall(package):
+    """Uninstall a package.
+    
+    :arg str package: Package name.
+    """
     execute_pip("uninstall -y {}".format(package))
     
 def show(package, verbose=False):
+    """Get package information.
+    
+    :arg str package: Package name.
+    :arg bool verbose: Whether to return verbose info.
+    :return: A namespace object holding the package information.
+    :rtype: Namespace
+    
+    This function uses ``pip show`` under the hood. Property name is generated
+    by :func:`case_conversion.snakecase`.
+    """
     cmd = "show"
     if verbose:
         cmd += " --verbose"
@@ -45,6 +72,10 @@ def show(package, verbose=False):
     return ns
     
 def list_():
+    """List installed packages.
+    
+    :rtype: list[Namespace]
+    """
     lines = []
     for line in execute_pip("list --format json", capture=True):
         lines.append(line)

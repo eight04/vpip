@@ -10,8 +10,36 @@ def get_dev_requires():
     
 def get_prod_requires():
     return parse_requirements(ProdUpdater().get_requirements())
+    
+class Updater:
+    """Dependency updater interface. Extend this class to create a new updater.
+    """
+    def get_requirements(self):
+        """Get requirements string.
+        
+        :rtype: str
+        """
+        raise NotImplementedError
+        
+    def get_spec(self, name, version):
+        """Get version specifier.
+        
+        :arg str name: Installed package name.
+        :arg str version: Installed pacakge version.
+        :return: Version specifier e.g. ``"foo==0.1.0"``
+        :rtype: str
+        """
+        raise NotImplementedError
+        
+    def write_requirements(self, lines):
+        """Write new requirements to file.
+        
+        :arg list[str] line: Lines of requirements.
+        """
+        raise NotImplementedError
 
-class DevUpdater:
+class DevUpdater(Updater):
+    """Development dependency (requirements.txt) updater."""
     def __init__(self):
         self.file = Path("requirements.txt")
         
@@ -30,7 +58,8 @@ class DevUpdater:
             for line in lines:
                 f.write(line + "\n")
                 
-class ProdUpdater:
+class ProdUpdater(Updater):
+    """Production dependency (setup.cfg) updater."""
     def __init__(self):
         self.file = Path("setup.cfg")
         self.config = ConfigUpdater()
@@ -59,6 +88,12 @@ class ProdUpdater:
         self.file.write_text(str(self.config).replace("\r", ""), "utf8")
         
 def update_dependency(updater, added=None, removed=None):
+    """Update dependency and save.
+    
+    :arg Updater updater: An Updater instance.
+    :arg dict added: A ``pkg_name -> version`` map. Added packages.
+    :arg list[str] removed: A list of pacakge name. Removed packages.
+    """
     added = added or {}
     removed = set(removed or [])
     output = []

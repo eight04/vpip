@@ -6,11 +6,17 @@ from pathlib import Path
 
 from . import commands
 
-def cli():
+def cli(args=None):
+    """CLI entry point.
+    
+    :arg list args: Argument list. Use ``sys.argv[1:]`` if None.
+    """
     patch_argparse()
         
     parser = argparse.ArgumentParser(prog="vpip", description="A CLI which aims to provide an npm-like experience when installing Python packages.")
-    args = sys.argv[1:]
+    
+    if args is None:
+        args = sys.argv[1:]
     
     def fallback(values):
         config = ConfigParser()
@@ -44,6 +50,7 @@ def cli():
         parser.error('unreconized arguments: {}'.format(' '.join(extra)))
     
 def add_arguments(target, options):
+    """Add JSON-formatted argument list to parser."""
     for option in options:
         type = option.pop("type", None)
         if type == "exclusive_group":
@@ -55,8 +62,22 @@ def add_arguments(target, options):
             if not isinstance(name, list):
                 name = [name]
             target.add_argument(*name, **option)
+            
+is_argparse_patched = False
 
 def patch_argparse():
+    """Patch :mod:`argparse`. Make :meth:`ArgumentParser.add_subparsers`
+    accept a new keyword argument ``fallback``, which is a function receving a
+    ``args`` list and returning a new ``args`` or None.
+    
+    This function can be called multiple times, but only the first call will
+    patch the module.
+    """
+    global is_argparse_patched
+    if is_argparse_patched:
+        return
+    is_argparse_patched = True
+    
     # pylint: disable=protected-access
     __init__ = argparse._SubParsersAction.__init__
     def init(self, *args, **kwargs):

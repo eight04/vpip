@@ -32,9 +32,13 @@ def run(ns):
     elif ns.PACKAGE:
         install_local(ns.PACKAGE, dev=ns.save_dev)
     else:
-        install_local_requirements()
+        install_local_first_time()
 
 def install_global(packages):
+    """Install global packages.
+    
+    :arg list[str] packages: List of package name.
+    """
     from .. import venv, pip_api
     for pkg in packages:
         vv = venv.get_global_pkg_venv(pkg)
@@ -53,6 +57,12 @@ def install_global(packages):
             raise
 
 def install_local(packages, dev=False):
+    """Install local packages and save to dependency.
+    
+    :arg list[str] packages: List of package name.
+    :arg bool dev: If true then save to development depedency. Otherwise, save
+    to production dependency.
+    """
     from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
     installed = {}
@@ -65,7 +75,8 @@ def install_local(packages, dev=False):
     else:
         dependency.add_prod(installed)
 
-def install_local_requirements():
+def install_local_first_time():
+    """Create the venv and install all dependencies."""
     from .. import venv, pip_api
     vv = venv.get_current_venv()
     with vv.activate(True):
@@ -73,6 +84,11 @@ def install_local_requirements():
         pip_api.install_requirements()
 
 def link_console_script(pkg):
+    """Find console scripts of the package and try to link the executable to
+    the global scripts folder.
+    
+    :arg str pkg: Package name.
+    """
     import shutil
     import os
     from configparser import ConfigParser
@@ -94,7 +110,7 @@ def link_console_script(pkg):
         dest = os.path.join(venv.GLOBAL_SCRIPT_FOLDER, filename)
         print("link console script '{}'".format(filename))
         if Path(dest).exists():
-            if input("script already exists, overwrite? [y/N]").strip().lower() == "y":
+            if input("script already exists, overwrite? [y/N]: ").strip().lower() == "y":
                 Path(dest).unlink()
             else:
                 continue

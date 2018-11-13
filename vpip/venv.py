@@ -12,7 +12,9 @@ def get_script_folder(base):
         return os.path.join(base, "Scripts")
     return os.path.join(base, "bin")
     
+#: Path to the global package venv folder
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
+#: Path to the global scripts folder
 GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.prefix)
 
 def get_global_folder(pkg_name):
@@ -25,9 +27,19 @@ def get_path_without_venv(path, venv_dir):
                     if not p.startswith(venv_dir))
                     
 def get_current_venv():
+    """Get the :class:`Venv` instance pointing to ``./.venv``.
+    
+    :rtype: Venv
+    """
     return Venv(".venv")
     
 def get_global_pkg_venv(pkg):
+    """Get the :class:`Venv` instance pointing the venv folder of the global
+    installed package.
+    
+    :arg str pkg: Package name. It would also be used as the folder name.
+    :rtype: Venv
+    """
     return Venv(get_global_folder(pkg))
     
 class Builder(venv.EnvBuilder):
@@ -51,7 +63,13 @@ class Builder(venv.EnvBuilder):
         
 
 class Venv:
+    """A helper class that is associated to an venv folder. It allows you to
+    easily activate/deactivate the venv.
+    """
     def __init__(self, env_dir):
+        """
+        :arg str env_dir: The target venv folder.
+        """
         self.env_dir = os.path.abspath(env_dir)
         self.old_env_dir = os.environ.get("VIRTUAL_ENV")
         
@@ -62,16 +80,28 @@ class Venv:
         self.old_path = os.environ["path"]
         
     def exists(self):
+        """Check if the folder exists.
+        
+        :rtype: bool
+        """
         return os.path.exists(self.env_dir)
     
     @contextmanager
     def activate(self, auto_create=False):
+        """Activate the venv. Update PATH and VIRTUAL_ENV environment variables.
+        
+        :arg bool auto_create: If True then automatically create the venv when
+            the folder doesn't exist.
+            
+        This function can be used as a context manager that will
+        :meth:`deactivate` when exited.
+        """
         try:
             if not self.exists():
                 if auto_create:
                     self.create()
                 else:
-                    raise Exception(".venv folder doesn't exists")
+                    raise Exception("venv folder doesn't exists")
             os.environ["PATH"] = self.path
             os.environ["VIRTUAL_ENV"] = self.env_dir
             yield
@@ -79,6 +109,7 @@ class Venv:
             self.deactivate()
         
     def deactivate(self):
+        """Deactivate the venv."""
         os.environ["PATH"] = self.old_path
         if self.old_env_dir:
             os.environ["VIRTUAL_ENV"] = self.old_env_dir
@@ -86,9 +117,11 @@ class Venv:
             del os.environ["VIRTUAL_ENV"]
     
     def create(self):
+        """Create the venv."""
         print("building venv at {}".format(self.env_dir))
         Builder(with_pip=True).create(self.env_dir)
         
     def destroy(self):
+        """Destroy the venv. Remove the venv folder."""
         shutil.rmtree(self.env_dir)
         

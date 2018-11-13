@@ -13,6 +13,22 @@ def get_session():
     return session
 
 def check_update(pkg, curr_version):
+    """Check update from pypi and return the result if there is an update
+    available.
+    
+    :arg str pkg: Package name.
+    :arg str curr_version: Installed version of the package.
+    :rtype: UpdateResult or None
+    
+    :class:`UpdateResult` has two properies, ``compatible`` and ``latest``,
+    which are two different version string.
+    
+    If ``result.compatible`` is not None, it must be compatible with
+    ``current_version`` and must lager than ``current_version``.
+    
+    If ``result.latest`` is not None, it must larger than ``result.compatible``
+    and ``current_version``.
+    """
     r = get_session().get("https://pypi.org/pypi/{}/json".format(pkg))
     r.raise_for_status()
     
@@ -36,6 +52,13 @@ def check_update(pkg, curr_version):
         return UpdateResult(compatible, latest)
 
 def is_compatible(version, new_version):
+    """Check if two versions are compatible. ``new_version`` may be smaller
+    than ``version``.
+    
+    :type version: str
+    :type new_version: str
+    :rtype: bool
+    """
     version = str(version).split(".")
     new_version = str(new_version).split(".")
     if version[0] == new_version[0]:

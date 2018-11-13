@@ -2,6 +2,13 @@ import subprocess
 import shutil
 
 def execute(cmd, capture=False):
+    """Execute a command.
+    
+    :arg bool capture: If True then enter the capture mode: process output
+        will be captured and the function will return a generator yielding
+        lines of the output.
+    :rtype: Iterator[str] or None
+    """
     def do_execute():
         stdout = subprocess.PIPE if capture else None
         shell = True if isinstance(cmd, str) else False
