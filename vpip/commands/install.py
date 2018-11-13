@@ -55,7 +55,7 @@ def install_global(packages, upgrade=False, latest=False):
                 # https://github.com/pypa/pip/issues/3934
                 # pip_api.install(pkg, install_scripts=venv.GLOBAL_SCRIPT_FOLDER)
                 pip_api.install(pkg, upgrade=upgrade, latest=latest)
-                link_console_script(pkg)
+                link_console_script(pkg, overwrite=True)
         except Exception:
             vv.destroy()
             raise
@@ -87,7 +87,7 @@ def install_local_first_time():
         pip_api.install_editable()
         pip_api.install_requirements()
 
-def link_console_script(pkg):
+def link_console_script(pkg, overwrite=False):
     """Find console scripts of the package and try to link the executable to
     the global scripts folder.
     
@@ -114,8 +114,9 @@ def link_console_script(pkg):
         dest = os.path.join(venv.GLOBAL_SCRIPT_FOLDER, filename)
         print("link console script '{}'".format(filename))
         if Path(dest).exists():
-            if input("script already exists, overwrite? [y/N]: ").strip().lower() == "y":
+            if overwrite:
                 Path(dest).unlink()
             else:
+                print("  skipped. the executable already exists")
                 continue
         os.link(full_path, dest)
