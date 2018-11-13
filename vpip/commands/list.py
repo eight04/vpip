@@ -9,35 +9,41 @@ options = [
 ]
 
 def run(ns):
-    from pathlib import Path
-    from packaging.utils import canonicalize_name
-    from .. import pip_api, venv, dependency
-
     if ns.global_:
-        for dir in Path(venv.GLOBAL_FOLDER).iterdir():
-            vv = venv.get_global_pkg_venv(dir.name)
-            with vv.activate():
-                print(dir.name, pip_api.show(dir.name).version)
+        print_global_packages()
     else:
-        vv = venv.get_current_venv()
-        dev_requires = list(dependency.get_dev_requires())
-        prod_requires = list(dependency.get_prod_requires())
-        if not dev_requires and not prod_requires:
-            print("no dependency found")
-            return
-        installed = {}
+        print_local_packages()
+            
+def print_global_packages():
+    from pathlib import Path
+    from .. import venv, pip_api
+    for dir in Path(venv.GLOBAL_FOLDER).iterdir():
+        vv = venv.get_global_pkg_venv(dir.name)
         with vv.activate():
-            for info in pip_api.list_():
-                installed[canonicalize_name(info.name)] = info.version
-        if dev_requires:
-            print("Dev dependency:")
-            print_requires(dev_requires, installed)
-            if prod_requires:
-                print("")
+            print(dir.name, pip_api.show(dir.name).version)
+            
+def print_local_packages():
+    from packaging.utils import canonicalize_name
+    from .. import venv, pip_api, dependency
+    vv = venv.get_current_venv()
+    dev_requires = list(dependency.get_dev_requires())
+    prod_requires = list(dependency.get_prod_requires())
+    if not dev_requires and not prod_requires:
+        print("no dependency found")
+        return
+    installed = {}
+    with vv.activate():
+        for info in pip_api.list_():
+            installed[canonicalize_name(info.name)] = info.version
+    if dev_requires:
+        print("Dev dependency:")
+        print_requires(dev_requires, installed)
         if prod_requires:
-            print("Prod dependency:")
-            print_requires(prod_requires, installed)
-        
+            print("")
+    if prod_requires:
+        print("Prod dependency:")
+        print_requires(prod_requires, installed)
+
 def print_requires(requires, installed):
     from packaging.utils import canonicalize_name
     for require in requires:
