@@ -20,7 +20,10 @@ def run(ns):
         uninstall_local(ns.PACKAGE)
     
 def uninstall_global(packages):
-    """Uninstall global packages."""
+    """Uninstall global packages.
+    
+    :arg list[str] packages: Package names.
+    """
     from .. import venv
 
     for pkg in packages:
@@ -28,7 +31,10 @@ def uninstall_global(packages):
         venv.get_global_pkg_venv(pkg).destroy()
     
 def uninstall_local(packages):
-    """Uninstall packages and remove from dependencies."""
+    """Uninstall packages and remove from dependencies.
+    
+    :arg list[str] packages: Package names.
+    """
     from .. import venv, pip_api, dependency
 
     vv = venv.get_current_venv()

@@ -7,6 +7,9 @@ UpdateResult = namedtuple("UpdateResult", ["compatible", "latest"])
 session = None
 
 def get_session():
+    """Return a static :class:`requests.Session` object used by
+    :func:`check_update`, so they can share a persistent connection.
+    """
     global session
     if session is None:
         session = requests.Session()
@@ -24,10 +27,10 @@ def check_update(pkg, curr_version):
     which are two different version string.
     
     If ``result.compatible`` is not None, it must be compatible with
-    ``current_version`` and must lager than ``current_version``.
+    ``curr_version`` and must lager than ``curr_version``.
     
     If ``result.latest`` is not None, it must larger than ``result.compatible``
-    and ``current_version``.
+    and ``curr_version``.
     """
     r = get_session().get("https://pypi.org/pypi/{}/json".format(pkg))
     r.raise_for_status()

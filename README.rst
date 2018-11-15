@@ -13,10 +13,15 @@ A CLI which aims to provide an ``npm``-like experience when installing Python pa
 Features
 --------
 
-* Install packages to isolated global virtual environments. Install multiple CLI utilities without conflict with each other.
-* Install packages to a local virtual environment. ``requirements.txt`` and ``setup.cfg`` are updated automatically.
-* Easily run commands in the local virtual environment.
-* Development dependencies are pinned and production dependencies are saved as a compatible range.
+* Install packages to isolated global virtual environments.
+
+  - Executables are linked to the Python Scripts folder so you can still use the CLI without activating the venv.
+    
+* Install packages to a local virtual environment.
+
+  - ``requirements.txt`` and ``setup.cfg`` are updated automatically.
+
+* Run commands in the local virtual environment.
 * No lock file.
 
 Installation

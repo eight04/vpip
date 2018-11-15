@@ -9,6 +9,8 @@ def run(ns, extra):
     
     vv = venv.get_current_venv()
     with vv.activate():
+        if extra and extra[0] == "--":
+            extra = extra[1:]
         if not extra:
             cmd = get_shell_executable()
         elif extra == ["python"]:

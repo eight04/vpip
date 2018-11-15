@@ -65,7 +65,8 @@ def install_local(packages, dev=False, **kwargs):
     
     :arg list[str] packages: List of package name.
     :arg bool dev: If true then save to development depedency. Otherwise, save
-    to production dependency.
+        to production dependency.
+    :arg dict kwargs: Other arguments are sent to :func:`vpip.pip_api.install`.
     """
     from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
@@ -80,7 +81,9 @@ def install_local(packages, dev=False, **kwargs):
         dependency.add_prod(installed)
 
 def install_local_first_time():
-    """Create the venv and install all dependencies."""
+    """Create the venv and install all dependencies i.e. ``pip install -e .``
+    then ``pip install -r requirements.txt``.
+    """
     from .. import venv, pip_api
     vv = venv.get_current_venv()
     with vv.activate(True):
@@ -92,6 +95,7 @@ def link_console_script(pkg, overwrite=False):
     the global scripts folder.
     
     :arg str pkg: Package name.
+    :arg bool overwrite: Whether to overwrite the existed script.
     """
     import shutil
     import os

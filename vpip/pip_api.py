@@ -1,4 +1,4 @@
-"""pip command API."""
+"""``pip`` command API."""
 
 import json
 import re
@@ -89,7 +89,7 @@ def show(package, verbose=False):
 def list_():
     """List installed packages.
     
-    :rtype: list[Namespace]
+    :rtype: list[argparse.Namespace]
     """
     lines = []
     for line in execute_pip("list --format json", capture=True):
@@ -97,18 +97,39 @@ def list_():
     return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
     
 def create_ns_from_dict(d):
+    """Create a namespace object from a dict.
+    
+    :arg dict d: Dictionary.
+    :rtype: argparse.Namespace
+    """
     ns = Namespace()
     for key, value in d.items():
         setattr(ns, key, value)
     return ns
 
 def execute_pip(cmd, capture=False):
+    """Run pip command.
+    
+    :arg str cmd: ``pip`` command. It would be prefixed with ``python -m pip``.
+    :arg bool capture: Whether to capture output.
+    """
     prefix = "python -m pip "
     if capture:
         prefix += "--no-color "
     return execute(prefix + cmd, capture)
     
 def get_compatible_version(version):
+    """Return the compatible version.
+    
+    :arg str version: Version string.
+    :return: The compatible version which could be used as ``~={compatible_version}``.
+    :rtype: str
+
+    Suppose the version string is ``x.y.z``:
+    
+    * If ``x`` is zero then return ``x.y.z``.
+    * Otherwise return ``x.y``.
+    """
     if version.startswith("0."):
         return version
     return ".".join(version.split(".")[:2])

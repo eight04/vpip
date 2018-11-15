@@ -4,7 +4,10 @@ import shutil
 def execute(cmd, capture=False):
     """Execute a command.
     
-    :arg bool capture: If True then enter the capture mode: process output
+    :arg cmd: Command. If ``cmd`` is a :class:`str`, the command would be
+        invoked with shell.
+    :type cmd: list or str
+    :arg bool capture: If ``True`` then enter the capture mode: process output
         will be captured and the function will return a generator yielding
         lines of the output.
     :rtype: Iterator[str] or None

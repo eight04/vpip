@@ -35,6 +35,15 @@ def run(ns):
             latest=ns.latest)
         
 def update_local(filter, latest=False):
+    """Update local packages.
+    
+    :arg Callable filter: A ``(pkg_name: str) -> bool`` function. If return True
+        then update the package.
+        
+        Packages would be grabbed from the dependencies.
+    
+    :arg bool latest: Whether to upgrade to the latest version.
+    """
     from .. import dependency
     
     for requires, is_dev in [

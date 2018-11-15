@@ -1,5 +1,7 @@
 livereload==2.5.2
 pylint==2.1.1
 pyxcute==0.5.2
+sphinx-autobuild==0.7.1
+sphinx==1.8.2
 twine==1.12.1
 wheel==0.32.2

@@ -10,6 +10,11 @@ def cli(args=None):
     """CLI entry point.
     
     :arg list args: Argument list. Use ``sys.argv[1:]`` if None.
+    
+    You can invoke this function like::
+    
+        from vpip.cli import cli
+        cli(["install", "-g", "my-package"])
     """
     patch_argparse()
         
@@ -49,19 +54,24 @@ def cli(args=None):
     else:
         parser.error('unreconized arguments: {}'.format(' '.join(extra)))
     
-def add_arguments(target, options):
-    """Add JSON-formatted argument list to parser."""
+def add_arguments(parser, options):
+    """Add JSON-formatted argument list to parser.
+    
+    :arg argparse.ArgumentParser parser: The parser, or anything that
+        implements ``add_argument`` method.
+    :arg list options: List of options. See the source code in `vpip.commands <https://github.com/eight04/vpip/blob/95c9e03acf8239b342759aab238b28591cd4f214/vpip/commands/install.py#L2>`_ for example.
+    """
     for option in options:
         type = option.pop("type", None)
         if type == "exclusive_group":
             sub_options = option.pop("options", [])
-            group = target.add_mutually_exclusive_group(**option)
+            group = parser.add_mutually_exclusive_group(**option)
             add_arguments(group, sub_options)
         else:
             name = option.pop("name")
             if not isinstance(name, list):
                 name = [name]
-            target.add_argument(*name, **option)
+            parser.add_argument(*name, **option)
             
 is_argparse_patched = False
 

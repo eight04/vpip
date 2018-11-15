@@ -2,7 +2,7 @@ import re
 import importlib
 from pkg_resources import resource_listdir
 
-#: A list of commands
+#: List of builtin command names.
 names = [
     filename.partition(".")[0]
     for filename in resource_listdir(__name__, "")
@@ -13,7 +13,7 @@ def get_modules():
     """Get module instances.
     
     :return: A ``command_name -> module`` map.
-    :rtype: dict
+    :rtype: dict[str, module]
     """
     modules = {}
     for name in names:

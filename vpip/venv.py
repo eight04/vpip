@@ -13,15 +13,26 @@ def get_script_folder(base):
         return os.path.join(base, "Scripts")
     return os.path.join(base, "bin")
     
-#: Path to the global package venv folder
+#: Absolute path to the global package venv folder ``~/.vpip/pkg_venvs``
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
-#: Path to the global scripts folder
+
+#: Absolute path to the global scripts folder. This is
+#: ``sys.prefix + "/Scripts"`` on Windows.
 GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.prefix)
 
 def get_global_folder(pkg_name):
+    """Get global venv folder for a package.
+    
+    :arg str pkg_name: Package name.
+    :rtype: str
+    """
     return os.path.join(GLOBAL_FOLDER, pkg_name)
     
 def iter_global_packages():
+    """Iterate through all venv folders for globally installed packages.
+    
+    :rtype: Iterator[str]
+    """
     for dir in Path(GLOBAL_FOLDER).iterdir():
         yield dir.name
     
@@ -48,6 +59,10 @@ def get_global_pkg_venv(pkg):
     return Venv(get_global_folder(pkg))
     
 class Builder(venv.EnvBuilder):
+    """An environment builder that could be used inside a venv.
+    
+    It also upgrades pip to the latest version after installed.
+    """
     def ensure_directories(self, env_dir):
         context = super().ensure_directories(env_dir)
         current_venv = os.environ.get("VIRTUAL_ENV")
@@ -68,7 +83,7 @@ class Builder(venv.EnvBuilder):
         
 
 class Venv:
-    """A helper class that is associated to an venv folder. It allows you to
+    """A helper class that is associated to a venv folder. It allows you to
     easily activate/deactivate the venv.
     """
     def __init__(self, env_dir):

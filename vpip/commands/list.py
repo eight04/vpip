@@ -75,12 +75,28 @@ def print_local_packages(check_outdated=False):
         prod_count += 1
 
 class PackageInfo:
+    """Package information formatter.
+    
+    Usage::
+        
+        print(PackageInfo("my_package", "0.1.0"))
+    """
     def __init__(self, name, version=None):
+        """
+        :arg str name: Package name.
+        :arg str version: Package version. If none then it shows
+            ``(not installed)`` when formatted.
+        """
+        #: 
         self.name = name
+        #: 
         self.version = version
+        #: Update result. This would be set to the return value of
+        #: :func:`vpip.pypi.check_update`.
         self.update_result = None
             
     def check_update(self):
+        """Check update and setup :attr:`update_result`."""
         if not self.version:
             return False
         from .. import pypi
@@ -88,6 +104,7 @@ class PackageInfo:
         return self.update_result is not None
             
     def __str__(self):
+        """Format package information."""
         lines = []
         if self.version:
             lines.append("{} {}".format(self.name, self.version))

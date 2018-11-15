@@ -92,7 +92,7 @@ def update_dependency(updater, added=None, removed=None):
     
     :arg Updater updater: An Updater instance.
     :arg dict added: A ``pkg_name -> version`` map. Added packages.
-    :arg list[str] removed: A list of pacakge name. Removed packages.
+    :arg list[str] removed: A list of package name. Removed packages.
     """
     added = added or {}
     removed = set(removed or [])
