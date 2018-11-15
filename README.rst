@@ -3,6 +3,10 @@ vpip
 
 .. image:: https://travis-ci.org/eight04/vpip.svg?branch=master
     :target: https://travis-ci.org/eight04/vpip
+    
+.. image:: https://readthedocs.org/projects/vpip/badge/?version=latest
+    :target: https://vpip.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 ..
     
@@ -68,7 +72,7 @@ Currently, this CLI is only tested on Windows.
 Documentation
 -------------
 
-TBD
+https://vpip.readthedocs.io/en/latest/index.html
 
 Changelog
 ---------
