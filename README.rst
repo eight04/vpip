@@ -7,6 +7,10 @@ vpip
 .. image:: https://readthedocs.org/projects/vpip/badge/?version=latest
   :target: https://vpip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
+  
+.. image:: https://img.shields.io/pypi/v/vpip.svg
+  :alt: PyPI
+  :target: https://pypi.org/project/vpip
 
 ..
     

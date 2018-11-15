@@ -31,7 +31,7 @@ cute(
     readme_pre = "readme_build",
     readme = readme,
     # color often breaks cmd on windows
-    doc = 'sphinx-autobuild --no-color --open-browser --watch {pkg_name} docs docs/build',
+    doc = 'sphinx-autobuild -N --open-browser --watch {pkg_name} docs docs/build',
     # I guess it is not a good idea to generate this automatically...
     doc_api = [
         "sphinx-apidoc vpip --no-toc --separate -o docs/api",
