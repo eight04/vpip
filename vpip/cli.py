@@ -28,9 +28,13 @@ def cli(args=None):
         file = Path("setup.cfg")
         try:
             config.read_string(file.read_text(encoding="utf8"))
-            command = config.get("vpip", "command_fallback", fallback=None)
-            if command is not None:
-                return ["run", *shlex.split(command), *values]
+            if "vpip.commands" in config:
+                for key, value in config["vpip.commands"].items():
+                    if key == values[0]:
+                        return ["run", *shlex.split(value), *values[1:]]
+            fallback_command = config.get("vpip", "command_fallback", fallback=None)
+            if fallback_command is not None:
+                return ["run", *shlex.split(fallback_command), *values]
         except OSError:
             pass
             
