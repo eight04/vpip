@@ -77,6 +77,10 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.2.1 (Nov 16, 2018)
+
+    - Add: user defined commands.
+
 * 0.2.0 (Nov 16, 2018)
 
     - Add documentation.
