@@ -2,15 +2,15 @@ vpip
 ====
 
 .. image:: https://travis-ci.org/eight04/vpip.svg?branch=master
-    :target: https://travis-ci.org/eight04/vpip
+  :target: https://travis-ci.org/eight04/vpip
     
 .. image:: https://readthedocs.org/projects/vpip/badge/?version=latest
-    :target: https://vpip.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+  :target: https://vpip.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 ..
     
-    ``vpip`` = `venv <https://docs.python.org/3/library/venv.html>`_ + `pipm <https://github.com/jnoortheen/pipm>`_
+  ``vpip`` = `venv <https://docs.python.org/3/library/venv.html>`_ + `pipm <https://github.com/jnoortheen/pipm>`_
 
 A CLI which aims to provide an ``npm``-like experience when installing Python packages.
 
@@ -33,7 +33,7 @@ Installation
 
 ``vpip`` is hosted on pypi::
 
-    pip install vpip
+  pip install vpip
     
 Usage example
 -------------
@@ -79,14 +79,14 @@ Changelog
 
 * 0.2.1 (Nov 16, 2018)
 
-    - Add: user defined commands.
+  - Add: user defined commands.
 
 * 0.2.0 (Nov 16, 2018)
 
-    - Add documentation.
-    - Change: console scripts will be overwritten by default, matching pip's default behavior.
+  - Add documentation.
+  - Change: console scripts will be overwritten by default, matching pip's default behavior.
 
 * 0.1.0 (Nov 13, 2018)
 
-    - First release
+  - First release
     
