@@ -77,6 +77,11 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.2.0 (Nov 16, 2018)
+
+    - Add documentation.
+    - Change: console scripts will be overwritten by default, matching pip's default behavior.
+
 * 0.1.0 (Nov 13, 2018)
 
     - First release
