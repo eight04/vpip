@@ -96,6 +96,17 @@ Execute shell command in the local venv. If the command has an option that is co
 
     # this would disply the help message of pylint instead of vpip
     vpip run -- pylint -h
+    
+link
+~~~~
+
+.. code::
+
+  vpip link
+  
+Link console scripts installed in the local venv to the global Scripts folder so they can be invoked without activating the venv.
+
+This command checks the ``console_scripts`` in ``setup.cfg`` to decide which commands should be linked.
 
 Extend commands
 ---------------
