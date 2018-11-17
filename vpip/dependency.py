@@ -65,15 +65,25 @@ class ProdUpdater(Updater):
         self.config = ConfigUpdater()
         self.indent = None
         
-    def get_requirements(self):
+    def read(self):
         try:
             text = self.file.read_text("utf8")
             self.indent = detect_indent(text)
             self.config.read_string(text)
+        except OSError:
+            pass        
+        
+    def get_requirements(self):
+        self.read()
+        try:
             return self.config.get("options", "install_requires").value
-        except (OSError, configparser.Error):
+        except configparser.Error:
             pass
         return ""
+        
+    def get_name(self):
+        self.read()
+        return self.config.get("metadata", "name").value
         
     def get_spec(self, name, version):
         if not version.startswith("0."):
