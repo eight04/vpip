@@ -21,7 +21,6 @@ def link_console_script(pkg, overwrite=False):
     import shutil
     import os
     from configparser import ConfigParser
-    from pathlib import Path
     from .. import pip_api, venv
     # should be called inside a venv
     # link console script to GLOBAL_SCRIPT_FOLDER so they can be accessed outside of the venv
@@ -38,10 +37,37 @@ def link_console_script(pkg, overwrite=False):
         filename = os.path.split(full_path)[1]
         dest = os.path.join(venv.GLOBAL_SCRIPT_FOLDER, filename)
         print("link console script '{}'".format(filename))
-        if Path(dest).exists():
+        linker = WinLinker(full_path, dest) if os.name == "nt" else Linker(full_path, dest)
+        if linker.dest.exists():
             if overwrite:
-                Path(dest).unlink()
+                linker.dest.unlink()
             else:
                 print("  skipped. the executable already exists")
                 continue
-        os.link(full_path, dest)
+        linker.make()
+        
+class WinLinker:
+    def __init__(self, src, dest):
+        from pathlib import Path
+        self.src = src
+        self.dest = Path(dest).with_suffix(".bat")
+    
+    def make(self):
+        # FIXME: use elevate + symlink on Windows?
+        # https://stackoverflow.com/questions/6260149/os-symlink-support-in-windows
+        # create a BAT file on windows
+        content = "\n".join([
+            "@echo off",
+            '"{}" %*'.format(self.src)
+        ])
+        self.dest.write_text(content)
+        
+class Linker:
+    def __init__(self, src, dest):
+        from pathlib import Path
+        self.src = src
+        self.dest = Path(dest)
+        
+    def make(self):
+        import os
+        os.link(self.src, self.dest)
