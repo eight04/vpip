@@ -9,6 +9,7 @@ Submodules
 .. toctree::
 
    vpip.commands.install
+   vpip.commands.link
    vpip.commands.list
    vpip.commands.outdated
    vpip.commands.run
