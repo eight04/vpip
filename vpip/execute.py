@@ -14,7 +14,7 @@ def execute(cmd, capture=False):
     """
     def do_execute():
         stdout = subprocess.PIPE if capture else None
-        shell = True if isinstance(cmd, str) else False
+        shell = isinstance(cmd, str)
         if not shell:
             executable = shutil.which(cmd[0])
             if executable:
