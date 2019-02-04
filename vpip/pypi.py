@@ -37,6 +37,7 @@ def check_update(pkg, curr_version):
     
     # curr_version = packaging.version.parse(curr_version)
     all_versions = [packaging.version.parse(v) for v in r.json()["releases"].keys()]
+    all_versions = [v for v in all_versions if not v.is_prerelease]
     all_versions.sort()
     
     curr_version = packaging.version.parse(curr_version)
