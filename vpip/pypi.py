@@ -63,12 +63,16 @@ def is_compatible(version, new_version):
     :type new_version: str
     :rtype: bool
     """
-    version = str(version).split(".")
-    new_version = str(new_version).split(".")
+    version = to_version_tuple(version)
+    new_version = to_version_tuple(new_version)
     if version[0] == new_version[0]:
         if version[0] != 0:
             return True
         if version[1] == new_version[1]:
             return True
     return False
+    
+def to_version_tuple(version):
+    """Split version into number tuple"""
+    return tuple(int(n) for n in str(version).split("."))
     
