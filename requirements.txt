@@ -1,5 +1,6 @@
 livereload==2.6.0
 pylint==2.2.2
+pytest==4.2.0
 pyxcute==0.5.2
 sphinx-autobuild==0.7.1
 sphinx==1.8.4
