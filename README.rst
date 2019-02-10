@@ -81,6 +81,12 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.2.3 (Feb 10, 2019)
+
+  - Fix: ``pypi.is_compatible`` treat ``0.1.0`` and ``0.2.0`` as compatible.
+  - Fix: don't include pre-release when checking updates.
+  - Update dependencies.
+
 * 0.2.2 (Feb 2, 2019)
 
   - Add: ``link`` command.
