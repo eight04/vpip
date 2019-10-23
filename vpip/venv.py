@@ -67,7 +67,7 @@ class Builder(venv.EnvBuilder):
         context = super().ensure_directories(env_dir)
         current_venv = os.environ.get("VIRTUAL_ENV")
         if current_venv:
-            clean_path = get_path_without_venv(os.environ["path"], current_venv)
+            clean_path = get_path_without_venv(os.environ["PATH"], current_venv)
             # find executable that is not in the current virtual env
             # https://github.com/python/cpython/blob/cd449806fac1246cb7b4d392026fe6986ec01fb7/Lib/venv/__init__.py#L113-L116
             executable = shutil.which("python", path=clean_path)
@@ -95,9 +95,9 @@ class Venv:
         
         self.path = "{};{}".format(
             get_script_folder(self.env_dir),
-            get_path_without_venv(os.environ["path"], self.old_env_dir)
+            get_path_without_venv(os.environ["PATH"], self.old_env_dir)
         )
-        self.old_path = os.environ["path"]
+        self.old_path = os.environ["PATH"]
         
     def exists(self):
         """Check if the folder exists.
