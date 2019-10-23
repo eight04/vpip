@@ -1,11 +1,10 @@
 language: python
 python:
   - "3.6"
-  # travis doesn't support 3.7 yet
-  # https://docs.travis-ci.com/user/languages/python/#development-releases-support
-  # - "3.7"
+  - "3.7"
+  - "3.8"
 install:
-  - pip install -r requirements.txt
+  - pip install -r requirements-lock.txt
   - pip install .
 script:
   - python cute.py test
