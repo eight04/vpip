@@ -144,7 +144,7 @@ def update_lock():
             continue
         if line.startswith("pip=="):
             continue
-        lines.append(line)
+        lines.append(line.strip())
     Path(LOCK_FILE).write_text("\n".join(lines))
 
 def add_dev(packages):
