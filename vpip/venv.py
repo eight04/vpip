@@ -18,7 +18,7 @@ GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
 #: Absolute path to the global scripts folder. This is
 #: ``sys.prefix + "/Scripts"`` on Windows.
-GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.prefix)
+GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.base_prefix)
 
 def get_global_folder(pkg_name):
     """Get global venv folder for a package.
