@@ -1,22 +1,22 @@
 [MESSAGES CONTROL]
 disable=
-	raw-checker-failed, locally-disabled, locally-enabled, file-ignored,
-	suppressed-message, fixme,
-	
-	# https://github.com/PyCQA/pylint/issues/1368
-	bad-whitespace,
-	
-	anomalous-backslash-in-string,
-	duplicate-code,
-	global-statement,
-	inconsistent-return-statements,
+  raw-checker-failed, locally-disabled, locally-enabled, file-ignored,
+  suppressed-message, fixme,
+  
+  # https://github.com/PyCQA/pylint/issues/1368
+  bad-whitespace,
+  
+  anomalous-backslash-in-string,
+  duplicate-code,
+  global-statement,
+  inconsistent-return-statements,
     import-outside-toplevel,
-	missing-docstring, multiple-imports,
-	no-self-use,
-	redefined-outer-name, redefined-builtin,
-	trailing-whitespace, too-many-statements, too-many-return-statements,
-	unused-argument,
-	line-too-long
+  missing-docstring, multiple-imports,
+  no-self-use,
+  redefined-outer-name, redefined-builtin,
+  trailing-whitespace, too-many-statements, too-many-return-statements,
+  unused-argument,
+  line-too-long
 
 [REPORTS]
 reports=no
