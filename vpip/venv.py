@@ -39,8 +39,9 @@ def iter_global_packages():
 def get_path_without_venv(path, venv_dir):
     if not venv_dir:
         return path
-    return ";".join(p for p in re.split("\s*;\s*", path)
-                    if not p.startswith(venv_dir))
+    return os.pathsep.join(
+        p for p in re.split("\s*{}\s*".format(os.pathsep), path)
+        if not p.startswith(venv_dir))
                     
 def get_current_venv():
     """Get the :class:`Venv` instance pointing to ``./.venv``.
@@ -93,8 +94,9 @@ class Venv:
         self.env_dir = os.path.abspath(env_dir)
         self.old_env_dir = os.environ.get("VIRTUAL_ENV")
         
-        self.path = "{};{}".format(
+        self.path = "{}{}{}".format(
             get_script_folder(self.env_dir),
+            os.pathsep,
             get_path_without_venv(os.environ["PATH"], self.old_env_dir)
         )
         self.old_path = os.environ["PATH"]
@@ -144,4 +146,3 @@ class Venv:
     def destroy(self):
         """Destroy the venv. Remove the venv folder."""
         shutil.rmtree(self.env_dir)
-        
