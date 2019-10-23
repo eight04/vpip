@@ -41,4 +41,4 @@ def uninstall_local(packages):
     with vv.activate():
         for pkg in packages:
             pip_api.uninstall(pkg)
-    dependency.delete(packages)
+        dependency.delete(packages)

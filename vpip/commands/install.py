@@ -77,17 +77,22 @@ def install_local(packages, dev=False, **kwargs):
         for pkg in packages:
             result = pip_api.install(pkg, **kwargs)
             installed[pkg] = result.version
-    if dev:
-        dependency.add_dev(installed)
-    else:
-        dependency.add_prod(installed)
+        if dev:
+            dependency.add_dev(installed)
+        else:
+            dependency.add_prod(installed)
 
 def install_local_first_time():
     """Create the venv and install all dependencies i.e. ``pip install -e .``
     then ``pip install -r requirements.txt``.
     """
-    from .. import venv, pip_api
+    from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
     with vv.activate(True):
-        pip_api.install_editable()
-        pip_api.install_requirements()
+        if dependency.has_lock():
+            pip_api.install_requirements(dependency.LOCK_FILE)
+            pip_api.install_editable()
+        else:
+            pip_api.install_editable()
+            pip_api.install_requirements()
+            dependency.update_lock()

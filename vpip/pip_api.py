@@ -39,9 +39,9 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
     execute_pip("{} {}".format(cmd, package))
     return show(require.name)
     
-def install_requirements():
+def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""
-    execute_pip("install -r requirements.txt")
+    execute_pip("install -r {}".format(file))
     
 def install_editable():
     """Install the current cwd as editable package."""
@@ -95,6 +95,13 @@ def list_():
     for line in execute_pip("list --format json", capture=True):
         lines.append(line)
     return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
+    
+def freeze():
+    """Freeze installed packages.
+    
+    :rtype: Iterator[str]
+    """
+    return execute_pip("freeze", capture=True)
     
 def create_ns_from_dict(d):
     """Create a namespace object from a dict.
