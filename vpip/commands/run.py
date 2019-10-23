@@ -1,3 +1,5 @@
+import sys
+
 help = "Run command inside the venv"
 options = []
 allow_unknown = True
@@ -22,7 +24,7 @@ def run(ns, extra):
         try:
             execute(cmd)
         except CalledProcessError as err:
-            exit(err.returncode)
+            sys.exit(err.returncode)
     
 def get_shell_executable():
     # FIXME: this only works on Windows
