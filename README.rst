@@ -71,7 +71,7 @@ List dependencies:
 Compatibility
 --------------
 
-Currently, this CLI is only tested on Windows.
+This should be a cross-platform CLI. Please report any compatibility issues!
 
 Documentation
 -------------
@@ -80,6 +80,11 @@ https://vpip.readthedocs.io/en/latest/index.html
 
 Changelog
 ---------
+
+* 0.3.0 (Oct 31, 2019)
+
+  - **Support Unix system.**
+  - **Add: generate a lock file.**
 
 * 0.2.3 (Feb 10, 2019)
 
