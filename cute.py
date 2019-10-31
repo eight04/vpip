@@ -9,7 +9,7 @@ def readme():
     
 cute(
     pkg_name = "vpip",
-    test = ['pylint {pkg_name} cute.py test.py', 'pytest test.py', 'readme_build'],
+    test = ['pylint {pkg_name} cute.py', 'pytest', 'readme_build'],
     bump_pre = 'test',
     bump_post = ['dist', 'release', 'publish', 'install'],
     dist = 'x-clean build dist *.egg-info && python setup.py sdist bdist_wheel',
