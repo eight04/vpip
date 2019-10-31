@@ -140,8 +140,6 @@ def update_lock():
     from . import pip_api
     lines = []
     for line in pip_api.freeze():
-        if line.startswith("-e "):
-            continue
         if line.startswith("pip=="):
             continue
         lines.append(line.strip())

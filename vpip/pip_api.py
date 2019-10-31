@@ -101,7 +101,7 @@ def freeze():
     
     :rtype: Iterator[str]
     """
-    return execute_pip("freeze", capture=True)
+    return execute_pip("freeze --local --all --exclude-editable", capture=True)
     
 def create_ns_from_dict(d):
     """Create a namespace object from a dict.
