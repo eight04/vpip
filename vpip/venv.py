@@ -16,16 +16,16 @@ def get_script_folder(base):
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
 class GlobalScriptFolderGetter:
+    """Return two folders. One is the system scripts folder and
+    one is the user-site scripts folder.
+    
+    :rtype: list[str]
+    """
     def __init__(self):
         # this includes the system folder and the user-site folder
         self.folders = None
         
     def __call__(self):
-        """Return two folders. One is the system scripts folder and
-        one is the user-site scripts folder.
-        
-        :rtype: list[str]
-        """
         if self.folders:
             return self.folders
         from pip._internal.locations import distutils_scheme
