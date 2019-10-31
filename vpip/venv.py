@@ -1,7 +1,6 @@
 import os
 import re
 import shutil
-import sys
 import venv
 from contextlib import contextmanager
 from pathlib import Path
@@ -16,9 +15,28 @@ def get_script_folder(base):
 #: Absolute path to the global package venv folder ``~/.vpip/pkg_venvs``
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
-#: Absolute path to the global scripts folder. This is
-#: ``sys.prefix + "/Scripts"`` on Windows.
-GLOBAL_SCRIPT_FOLDER = get_script_folder(sys.base_prefix)
+class GlobalScriptFolderGetter:
+    def __init__(self):
+        # this includes the system folder and the user-site folder
+        self.folders = None
+        
+    def __call__(self):
+        """Return two folders. One is the system scripts folder and
+        one is the user-site scripts folder.
+        
+        :rtype: list[str]
+        """
+        if self.folders:
+            return self.folders
+        from pip._internal.locations import distutils_scheme
+        self.folders = [
+            # FIXME: this won't work if vpip is installed inside a venv
+            distutils_scheme("foo")["scripts"],
+            distutils_scheme("foo", user=True)["scripts"]
+        ]
+        return self.folders
+        
+get_global_script_folders = GlobalScriptFolderGetter()
 
 def get_global_folder(pkg_name):
     """Get global venv folder for a package.

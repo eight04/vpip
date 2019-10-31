@@ -55,9 +55,8 @@ def install_global(packages, upgrade=False, latest=False):
             with vv.activate(True):
                 # TODO: make pip support install_scripts
                 # https://github.com/pypa/pip/issues/3934
-                # pip_api.install(pkg, install_scripts=venv.GLOBAL_SCRIPT_FOLDER)
                 pip_api.install(pkg, upgrade=upgrade, latest=latest)
-                link_console_script(pkg, overwrite=True)
+                link_console_script(pkg)
         except Exception:
             vv.destroy()
             raise
