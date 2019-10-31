@@ -11,9 +11,6 @@ Constants
 .. autodata:: GLOBAL_FOLDER
     :annotation:
 
-.. autodata:: GLOBAL_SCRIPT_FOLDER
-    :annotation:
-    
 Functions
 ---------
 
@@ -24,6 +21,8 @@ Functions
 .. autofunction:: get_current_venv
 
 .. autofunction:: get_global_pkg_venv
+
+.. autofunction:: get_global_script_folders
 
 Classes
 -------
