@@ -1,11 +1,22 @@
-from xcute import cute
+from xcute import cute, f
 
 def readme():
     """Live reload readme"""
     from livereload import Server
+    import asyncio
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     server = Server()
     server.watch("README.rst", "python cute.py readme_build")
     server.serve(open_url_delay=1, root="build/readme")
+    
+def doc():
+    """Live reload docs"""
+    from livereload import Server
+    import asyncio
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    server = Server()
+    server.watch(f("{pkg_name}"), "python cute.py doc_build")
+    server.serve(open_url_delay=1, root="docs/build")
     
 cute(
     pkg_name = "vpip",
@@ -30,8 +41,9 @@ cute(
     ],
     readme_pre = "readme_build",
     readme = readme,
-    # color often breaks cmd on windows
-    doc = 'sphinx-autobuild -N --open-browser --watch {pkg_name} docs docs/build',
+    doc_build = "sphinx-build docs docs/build",
+    doc_pre = "doc_build",
+    doc = doc,
     # I guess it is not a good idea to generate this automatically...
     doc_api = [
         "sphinx-apidoc vpip --no-toc --separate -o docs/api",

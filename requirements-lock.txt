@@ -45,7 +45,6 @@ Send2Trash==1.5.0
 six==1.12.0
 snowballstemmer==2.0.0
 Sphinx==2.2.1
-sphinx-autobuild==0.7.1
 sphinxcontrib-applehelp==1.0.1
 sphinxcontrib-devhelp==1.0.1
 sphinxcontrib-htmlhelp==1.0.2
@@ -57,7 +56,6 @@ tqdm==4.36.1
 twine==2.0.0
 typed-ast==1.4.0
 urllib3==1.25.6
-vpip==0.2.3
 watchdog==0.9.0
 wcwidth==0.1.7
 webencodings==0.5.1
