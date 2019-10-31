@@ -32,7 +32,7 @@ py==1.8.0
 Pygments==2.4.2
 pylint==2.4.3
 pyparsing==2.4.2
-pytest==5.2.1
+pytest==5.2.2
 pytz==2019.3
 pyxcute==0.5.2
 PyYAML==5.1.2
@@ -44,7 +44,7 @@ semver==2.8.1
 Send2Trash==1.5.0
 six==1.12.0
 snowballstemmer==2.0.0
-Sphinx==2.2.0
+Sphinx==2.2.1
 sphinx-autobuild==0.7.1
 sphinxcontrib-applehelp==1.0.1
 sphinxcontrib-devhelp==1.0.1
