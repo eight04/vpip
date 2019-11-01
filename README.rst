@@ -24,13 +24,16 @@ Features
 * Install packages to isolated global virtual environments.
 
   - Executables are linked to the Python Scripts folder so you can still use the CLI without activating the venv.
+  - This allows you to install different CLI tools without worrying about dependency conflicts.
     
 * Install packages to a local virtual environment.
 
-  - ``requirements.txt`` and ``setup.cfg`` are updated automatically.
+  - Dependencies are stored in ``requirements.txt`` (development) and ``setup.cfg`` (production, as the ``install_requires`` option).
+  
+* When removing a package, also remove its sub-dependencies.
 
-* Run commands in the local virtual environment.
-* No lock file.
+* Easily run commands in the local virtual environment.
+* Generate a lock file.
 
 Installation
 ------------
