@@ -69,6 +69,9 @@ def install_local(packages, dev=False, **kwargs):
         to production dependency.
     :arg dict kwargs: Other arguments are sent to :func:`vpip.pip_api.install`.
     """
+    if not packages:
+        return
+        
     from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
     installed = {}
@@ -79,7 +82,11 @@ def install_local(packages, dev=False, **kwargs):
         if dev:
             dependency.add_dev(installed)
         else:
-            dependency.add_prod(installed)
+            result = dependency.add_prod(installed)
+            if result.incompat_update:
+                # rebuild egg file to avoid incompatible errors
+                # https://github.com/eight04/vpip/issues/19
+                pip_api.install_editable()
         dependency.update_lock()
 
 def install_local_first_time():
