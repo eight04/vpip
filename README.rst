@@ -71,7 +71,7 @@ List dependencies:
 Compatibility
 --------------
 
-This should be a cross-platform CLI. Please report any compatibility issues!
+``vpip`` is a cross-platform CLI. Please report any compatibility issues!
 
 Documentation
 -------------
