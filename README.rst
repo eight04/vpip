@@ -81,6 +81,13 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.4.0 (Nov 1, 2019)
+
+  - Fix: rebuild egg files after doing an incompatible update.
+  - Fix: clean unused packages after uninstall.
+  - Add: ``update_venv`` command.
+  - Breaking: ``pip_api.show`` and ``pip_api.uninstall`` now accept multiple packages.
+
 * 0.3.0 (Oct 31, 2019)
 
   - **Support Unix system.**
