@@ -39,6 +39,29 @@ def uninstall_local(packages):
 
     vv = venv.get_current_venv()
     with vv.activate():
-        for pkg in packages:
-            pip_api.uninstall(pkg)
+        pip_api.uninstall(packages)
         dependency.delete(packages)
+        clean_unused()
+        dependency.update_lock()
+
+def clean_unused():
+    """Remove unused packages"""
+    from .. import pip_api, dependency
+    deps = []
+    for req in dependency.get_dev_requires():
+        deps.append(req.name)
+    for req in dependency.get_prod_requires():
+        deps.append(req.name)
+    used = set(pkg.name for pkg in pip_api.show(deps))
+        
+    def get_unused():
+        return [
+            pkg.name for pkg in pip_api.list_(not_required=True)
+            if pkg.name not in used and pkg.name != "pip"
+        ]
+        
+    unused = get_unused()
+    while unused:
+        pip_api.uninstall(unused)
+        unused = get_unused()
+        

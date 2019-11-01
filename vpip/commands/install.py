@@ -80,6 +80,7 @@ def install_local(packages, dev=False, **kwargs):
             dependency.add_dev(installed)
         else:
             dependency.add_prod(installed)
+        dependency.update_lock()
 
 def install_local_first_time():
     """Create the venv and install all dependencies.

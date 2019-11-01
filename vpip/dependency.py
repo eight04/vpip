@@ -139,24 +139,21 @@ def update_lock():
     """Run ``pip freeze`` and update the lock file"""
     from . import pip_api
     lines = []
-    for line in pip_api.freeze():
-        if line.startswith("pip=="):
+    for pkg in pip_api.list_():
+        if pkg.name == "pip":
             continue
-        lines.append(line.strip())
+        lines.append("{}=={}".format(pkg.name, pkg.version))
     Path(LOCK_FILE).write_text("\n".join(lines))
 
 def add_dev(packages):
     update_dependency(DevUpdater(), added=packages)
-    update_lock()
     
 def add_prod(packages):
     update_dependency(ProdUpdater(), added=packages)
-    update_lock()
 
 def delete(packages):
     update_dependency(DevUpdater(), removed=packages)
     update_dependency(ProdUpdater(), removed=packages)
-    update_lock()
     
 def detect_indent(text):
     for line in text.split("\n"):

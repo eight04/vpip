@@ -28,7 +28,7 @@ def iter_global_packages():
     for name in venv.iter_global_packages():
         vv = venv.get_global_pkg_venv(name)
         with vv.activate():
-            yield PackageInfo(name, pip_api.show(name).version)
+            yield PackageInfo(name, pip_api.show([name])[0].version)
             
 def print_global_packages(check_outdated=False):
     for info in iter_global_packages():
