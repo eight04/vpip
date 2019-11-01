@@ -52,7 +52,7 @@ def uninstall(packages):
     
     :arg list[str] package: Package name.
     """
-    execute_pip("uninstall -y {}".format(" ".join(package)))
+    execute_pip("uninstall -y {}".format(" ".join(packages)))
     
 def show(packages, verbose=False):
     """Get package information.
