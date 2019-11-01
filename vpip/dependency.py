@@ -147,16 +147,13 @@ def update_lock():
 
 def add_dev(packages):
     update_dependency(DevUpdater(), added=packages)
-    update_lock()
     
 def add_prod(packages):
     update_dependency(ProdUpdater(), added=packages)
-    update_lock()
 
 def delete(packages):
     update_dependency(DevUpdater(), removed=packages)
     update_dependency(ProdUpdater(), removed=packages)
-    update_lock()
     
 def detect_indent(text):
     for line in text.split("\n"):

@@ -40,8 +40,9 @@ def uninstall_local(packages):
     vv = venv.get_current_venv()
     with vv.activate():
         pip_api.uninstall(packages)
-        clean_unused()
         dependency.delete(packages)
+        clean_unused()
+        dependency.update_lock()
 
 def clean_unused():
     """Remove unused packages"""
