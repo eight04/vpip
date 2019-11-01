@@ -47,12 +47,12 @@ def install_editable():
     """Install the current cwd as editable package."""
     execute_pip("install -e .")
     
-def uninstall(package):
-    """Uninstall a package.
+def uninstall(packages):
+    """Uninstall packages.
     
-    :arg str package: Package name.
+    :arg list[str] package: Package name.
     """
-    execute_pip("uninstall -y {}".format(package))
+    execute_pip("uninstall -y {}".format(" ".join(package)))
     
 def show(packages, verbose=False):
     """Get package information.
