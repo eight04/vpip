@@ -86,22 +86,19 @@ def show(package, verbose=False):
             continue
     return ns
     
-def list_():
+def list_(not_required=False, format="json"):
     """List installed packages.
     
     :rtype: list[argparse.Namespace]
     """
+    cmd = "list --local --exclude-editable"
+    if not_required:
+        cmd += " --not-required"
+    cmd += " --format {}".format(format)
     lines = []
-    for line in execute_pip("list --format json", capture=True):
+    for line in execute_pip(cmd, capture=True):
         lines.append(line)
     return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
-    
-def freeze():
-    """Freeze installed packages.
-    
-    :rtype: Iterator[str]
-    """
-    return execute_pip("freeze --local --all --exclude-editable", capture=True)
     
 def create_ns_from_dict(d):
     """Create a namespace object from a dict.

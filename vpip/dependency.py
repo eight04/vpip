@@ -139,10 +139,10 @@ def update_lock():
     """Run ``pip freeze`` and update the lock file"""
     from . import pip_api
     lines = []
-    for line in pip_api.freeze():
-        if line.startswith("pip=="):
+    for pkg in pip_api.list_():
+        if pkg.name == "pip":
             continue
-        lines.append(line.strip())
+        lines.append("{}=={}".format(pkg.name, pkg.version))
     Path(LOCK_FILE).write_text("\n".join(lines))
 
 def add_dev(packages):
