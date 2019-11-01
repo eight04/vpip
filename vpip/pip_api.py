@@ -65,8 +65,6 @@ def show(packages, verbose=False):
     This function uses ``pip show`` under the hood. Property name is generated
     by :func:`case_conversion.snakecase`.
     """
-    if isinstance(packages, str):
-        packages = [packages]
     cmd = "show"
     if verbose:
         cmd += " --verbose"
