@@ -99,6 +99,14 @@ class ProdUpdater(Updater):
             "\n" + self.indent + l for l in lines))
         self.file.write_text(str(self.config).replace("\r", ""), "utf8")
         
+class UpdateDependencyResult:
+    def __init__(self):
+        self.dirty = False
+        self.add = 0
+        self.update = 0
+        self.remove = 0
+        self.incompat_update = 0
+        
 def update_dependency(updater, added=None, removed=None):
     """Update dependency and save.
     
@@ -109,27 +117,34 @@ def update_dependency(updater, added=None, removed=None):
     added = added or {}
     removed = set(removed or [])
     output = []
-    dirty = False
+    result = UpdateDependencyResult()
     for require in parse_requirements(updater.get_requirements()):
         if require.name in added:
-            dirty = True
+            result.dirty = True
+            result.update += 1
             version = added.pop(require.name)
+            if version not in require.specifier:
+                result.incompat_update += 1
             spec = updater.get_spec(require.name, version)
             if require.marker:
                 spec += ";{}".format(require.marker)
             output.append(spec)
         elif require.name in removed:
-            dirty = True
+            result.dirty = True
+            result.remove += 1
         else:
             output.append(str(require))
             
     for name, version in added.items():
-        dirty = True
+        result.dirty = True
+        result.add += 1
         output.append(updater.get_spec(name, version))
         
-    if dirty:
+    if result.dirty:
         output.sort()
         updater.write_requirements(output)
+        
+    return result
         
 def has_lock():
     """Detect if there is a lock file (requirements-lock.txt)"""
@@ -146,14 +161,16 @@ def update_lock():
     Path(LOCK_FILE).write_text("\n".join(lines))
 
 def add_dev(packages):
-    update_dependency(DevUpdater(), added=packages)
+    return update_dependency(DevUpdater(), added=packages)
     
-def add_prod(packages):
-    update_dependency(ProdUpdater(), added=packages)
+def add_prod(packages, **kwargs):
+    return update_dependency(ProdUpdater(), added=packages)
 
 def delete(packages):
-    update_dependency(DevUpdater(), removed=packages)
-    update_dependency(ProdUpdater(), removed=packages)
+    return (
+        update_dependency(DevUpdater(), removed=packages),
+        update_dependency(ProdUpdater(), removed=packages)
+    )
     
 def detect_indent(text):
     for line in text.split("\n"):
