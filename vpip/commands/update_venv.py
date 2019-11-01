@@ -25,6 +25,7 @@ def update_venv(vv, global_pkg_name=None):
     """Update a venv.
     
     :arg vpip.venv.Venv vv: A venv instance.
+    :arg str global_pkg_name: Decide how to rebuild the venv. If set then run :func:`vpip.commands.install.install_global` when rebuilding venv. Otherwise, run :func:`vpip.commands.install.install_local_first_time`
     
     If the Python version is upgraded, this command reinstall the entire venv.
     """
@@ -35,7 +36,7 @@ def update_venv(vv, global_pkg_name=None):
     config = configparser.ConfigParser()
     config.read_string("[DEFAULT]\n" + (env_dir / "pyvenv.cfg").read_text())
     config_home = pathlib.Path(config.get("DEFAULT", "home"))
-    current_home = pathlib.Path(sys._base_executable).parent
+    current_home = pathlib.Path(sys._base_executable).parent # pylint: disable=protected-access
     if config_home != current_home:
         # python is updated, rebuild the entire venv
         vv.destroy()

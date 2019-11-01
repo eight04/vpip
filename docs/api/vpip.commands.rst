@@ -15,6 +15,7 @@ Submodules
    vpip.commands.run
    vpip.commands.uninstall
    vpip.commands.update
+   vpip.commands.update_venv
 
 Module contents
 ---------------

@@ -108,6 +108,19 @@ Link console scripts installed in the local venv to the global Scripts folder so
 
 This command checks the ``console_scripts`` in ``setup.cfg`` to decide which commands should be linked.
 
+update_venv
+~~~~~~~~~~~
+
+.. code::
+
+  vpip update_venv [-g [PACKAGE ...]]
+  
+Update/rebuild the venv folder. It compares the Python version inside the venv with the Python outside of the venv. If they are incompatible then rebuild the folder. Otherwise, this command upgrade ``pip`` inside the venv.
+
+Options:
+
+* ``-g, --global`` - Update global packages.
+
 Extend commands
 ---------------
 

@@ -82,8 +82,11 @@ def install_local(packages, dev=False, **kwargs):
             dependency.add_prod(installed)
 
 def install_local_first_time():
-    """Create the venv and install all dependencies i.e. ``pip install -e .``
-    then ``pip install -r requirements.txt``.
+    """Create the venv and install all dependencies.
+    
+    If the lock file exists, execute ``pip install -r requirements-lock.txt``.
+    
+    Otherwise ``pip install -e . && pip install -r requirements.txt``.
     """
     from .. import venv, pip_api, dependency
     vv = venv.get_current_venv()
