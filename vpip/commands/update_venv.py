@@ -36,7 +36,8 @@ def update_venv(vv, global_pkg_name=None):
     config = configparser.ConfigParser()
     config.read_string("[DEFAULT]\n" + (env_dir / "pyvenv.cfg").read_text())
     config_home = pathlib.Path(config.get("DEFAULT", "home"))
-    current_home = pathlib.Path(sys._base_executable).parent # pylint: disable=protected-access
+    # https://github.com/python/cpython/blob/0118d109d54bf75c99a8b0fa9aeae1a478ac4b7e/Lib/venv/__init__.py#L109
+    current_home = pathlib.Path(getattr(sys, '_base_executable', sys.executable)).parent
     if config_home != current_home:
         # python is updated, rebuild the entire venv
         vv.destroy()
