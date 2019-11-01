@@ -31,13 +31,13 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
         cmd += " -U"
         if not latest and not require.specs:
             try:
-                version = show(require.name).version
+                version = show([require.name])[0].version
             except CalledProcessError:
                 pass
             else:
                 package = "{}~={}".format(require.name, get_compatible_version(version))
     execute_pip("{} {}".format(cmd, package))
-    return show(require.name)
+    return show([require.name])[0]
     
 def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""
@@ -54,23 +54,33 @@ def uninstall(package):
     """
     execute_pip("uninstall -y {}".format(package))
     
-def show(package, verbose=False):
+def show(packages, verbose=False):
     """Get package information.
     
-    :arg str package: Package name.
+    :arg list[str] packages: A list of package name.
     :arg bool verbose: Whether to return verbose info.
-    :return: A namespace object holding the package information.
-    :rtype: Namespace
+    :return: A list of namespace objects holding the package information.
+    :rtype: list[Namespace]
     
     This function uses ``pip show`` under the hood. Property name is generated
     by :func:`case_conversion.snakecase`.
     """
+    if isinstance(packages, str):
+        packages = [packages]
     cmd = "show"
     if verbose:
         cmd += " --verbose"
+        
+    result = []
     ns = Namespace()
     last_name = None
-    for line in execute_pip("{} {}".format(cmd, package), True):
+    
+    for line in execute_pip("{} {}".format(cmd, " ".join(packages)), True):
+        if line.startswith("---"):
+            result.append(ns)
+            ns = Namespace()
+            continue
+            
         match = re.match("([\w-]+):\s*(.*)", line)
         if match:
             name, value = match.groups()
@@ -79,12 +89,15 @@ def show(package, verbose=False):
             setattr(ns, name, value)
             last_name = name
             continue
+            
         match = re.match("\s+(\S.*)", line)
         if match and last_name:
             value = getattr(ns, last_name) + "\n" + match.group(1).strip()
             setattr(ns, last_name, value)
             continue
-    return ns
+            
+    result.append(ns)
+    return result
     
 def list_(not_required=False, format="json"):
     """List installed packages.

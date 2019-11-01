@@ -24,7 +24,7 @@ def link_console_script(pkg):
     from .. import pip_api, venv
     # should be called inside a venv
     # link console script to GLOBAL_SCRIPT_FOLDER so they can be accessed outside of the venv
-    entry_points = pip_api.show(pkg, verbose=True).entry_points
+    entry_points = pip_api.show([pkg], verbose=True)[0].entry_points
     config = ConfigParser()
     config.read_string(entry_points)
     if "console_scripts" not in config:
