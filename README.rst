@@ -31,9 +31,8 @@ Features
   - Dependencies are stored in ``requirements.txt`` (development) and ``setup.cfg`` (production, as the ``install_requires`` option).
   
 * When removing a package, also remove its sub-dependencies.
-
 * Easily run commands in the local virtual environment.
-* Generate a lock file.
+* Generate a lock file (``requirements-lock.txt``).
 
 Installation
 ------------
@@ -41,6 +40,8 @@ Installation
 ``vpip`` is hosted on pypi::
 
   pip install vpip
+  
+After installing vpip as a CLI, you can use it to install other packages (globally or locally).
     
 Usage example
 -------------
@@ -74,7 +75,7 @@ List dependencies:
 Compatibility
 --------------
 
-``vpip`` is a cross-platform CLI. Please report any compatibility issues!
+``vpip`` is a cross-platform CLI. Please report any compatibility issues.
 
 Documentation
 -------------
