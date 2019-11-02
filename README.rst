@@ -85,6 +85,10 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.4.1 (Nov 2, 2019)
+
+  - Nothing is changed. Updated README and corrected some errors.
+
 * 0.4.0 (Nov 1, 2019)
 
   - Fix: rebuild egg files after doing an incompatible update.
