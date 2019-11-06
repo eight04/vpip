@@ -55,6 +55,8 @@ def uninstall(packages):
     
     :arg list[str] package: Package name.
     """
+    if not packages:
+        return
     execute_pip("uninstall -y {}".format(" ".join(packages)))
     
 def show(packages, verbose=False):
@@ -68,6 +70,9 @@ def show(packages, verbose=False):
     This function uses ``pip show`` under the hood. Property name is generated
     by :func:`case_conversion.snakecase`.
     """
+    if not packages:
+        return []
+        
     cmd = "show"
     if verbose:
         cmd += " --verbose"
