@@ -1,6 +1,7 @@
 """``pip`` command API."""
 
 import json
+import pathlib
 import re
 from argparse import Namespace
 from subprocess import CalledProcessError
@@ -45,7 +46,9 @@ def install_requirements(file="requirements.txt"):
     
 def install_editable():
     """Install the current cwd as editable package."""
-    execute_pip("install -e .")
+    setup = pathlib.Path("setup.py")
+    if setup.exists():
+        execute_pip("install -e .")
     
 def uninstall(packages):
     """Uninstall packages.

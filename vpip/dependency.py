@@ -64,16 +64,17 @@ class ProdUpdater(Updater):
     """Production dependency (setup.cfg) updater."""
     def __init__(self):
         self.file = Path("setup.cfg")
+        self.file_py = self.file.with_suffix(".py")
         self.config = ConfigUpdater()
         self.indent = None
         
     def read(self):
         try:
             text = self.file.read_text("utf8")
-            self.indent = detect_indent(text)
-            self.config.read_string(text)
         except OSError:
-            pass        
+            return
+        self.indent = detect_indent(text)
+        self.config.read_string(text)
         
     def get_requirements(self):
         self.read()
@@ -98,6 +99,11 @@ class ProdUpdater(Updater):
         self.config.set("options", "install_requires", "".join(
             "\n" + self.indent + l for l in lines))
         self.file.write_text(str(self.config).replace("\r", ""), "utf8")
+        if not self.file_py.exists():
+            self.file_py.write_text("\n".join([
+                "from setuptools import setup",
+                "setup()"
+            ]))
         
 class UpdateDependencyResult:
     def __init__(self):
