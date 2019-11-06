@@ -128,7 +128,10 @@ def execute_pip(cmd, capture=False):
     :arg str cmd: ``pip`` command. It would be prefixed with ``python -m pip``.
     :arg bool capture: Whether to capture output.
     """
-    prefix = "python -m pip "
+    prefix = "python "
+    if capture:
+        prefix += "-X utf8 "
+    prefix += "-m pip "
     if capture:
         prefix += "--no-color "
     return execute(prefix + cmd, capture)
