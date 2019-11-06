@@ -66,7 +66,7 @@ class ProdUpdater(Updater):
         self.file = Path("setup.cfg")
         self.file_py = self.file.with_suffix(".py")
         self.config = ConfigUpdater()
-        self.indent = None
+        self.indent = "  " # default to 2 spaces indent?
         
     def read(self):
         try:
