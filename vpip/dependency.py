@@ -73,7 +73,7 @@ class ProdUpdater(Updater):
             text = self.file.read_text("utf8")
         except OSError:
             return
-        self.indent = detect_indent(text)
+        self.indent = detect_indent(text) or self.indent
         self.config.read_string(text)
         
     def get_requirements(self):
