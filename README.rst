@@ -85,6 +85,11 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.4.2 (Nov 9, 2019)
+
+  - Fix: generate ``setup.py`` automatically if needed.
+  - Fix: use utf8 encoding when parsing pip output.
+
 * 0.4.1 (Nov 2, 2019)
 
   - Nothing is changed. Updated README and corrected some errors.
