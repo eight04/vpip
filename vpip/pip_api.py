@@ -1,6 +1,7 @@
 """``pip`` command API."""
 
 import json
+import pathlib
 import re
 from argparse import Namespace
 from subprocess import CalledProcessError
@@ -45,13 +46,17 @@ def install_requirements(file="requirements.txt"):
     
 def install_editable():
     """Install the current cwd as editable package."""
-    execute_pip("install -e .")
+    setup = pathlib.Path("setup.py")
+    if setup.exists():
+        execute_pip("install -e .")
     
 def uninstall(packages):
     """Uninstall packages.
     
     :arg list[str] package: Package name.
     """
+    if not packages:
+        return
     execute_pip("uninstall -y {}".format(" ".join(packages)))
     
 def show(packages, verbose=False):
@@ -65,6 +70,9 @@ def show(packages, verbose=False):
     This function uses ``pip show`` under the hood. Property name is generated
     by :func:`case_conversion.snakecase`.
     """
+    if not packages:
+        return []
+        
     cmd = "show"
     if verbose:
         cmd += " --verbose"
