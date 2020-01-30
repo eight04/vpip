@@ -1,3 +1,5 @@
+from typing import List
+
 help = "Uninstall packages and delete from dependencies"
 options = [
     {
@@ -39,10 +41,18 @@ def uninstall_local(packages):
 
     vv = venv.get_current_venv()
     with vv.activate():
-        pip_api.uninstall(packages)
+        top_packages = get_top_packages(packages)
+        pip_api.uninstall(top_packages)
         dependency.delete(packages)
         clean_unused()
         dependency.update_lock()
+        
+def get_top_packages(packages: List[str]) -> List[str]:
+    """Return top-level packages"""
+    from .. import pip_api
+    can_names = [pkg.name for pkg in pip_api.show(packages)]
+    not_required = set(pkg.name for pkg in pip_api.list_(not_required=True))
+    return [name for name in can_names if name in not_required]
 
 def clean_unused():
     """Remove unused packages"""
