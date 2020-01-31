@@ -85,6 +85,10 @@ https://vpip.readthedocs.io/en/latest/index.html
 Changelog
 ---------
 
+* 0.4.3 (Jan 31, 2020)
+
+  - Fix: don't break sub-dependencies when uninstall.
+
 * 0.4.2 (Nov 9, 2019)
 
   - Fix: generate ``setup.py`` automatically if needed.
