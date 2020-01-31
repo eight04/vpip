@@ -1,4 +1,5 @@
 from typing import List
+from .link import get_current_pkg
 
 help = "Uninstall packages and delete from dependencies"
 options = [
@@ -50,9 +51,9 @@ def uninstall_local(packages):
 def get_top_packages(packages: List[str]) -> List[str]:
     """Return top-level packages"""
     from .. import pip_api
-    can_names = [pkg.name for pkg in pip_api.show(packages)]
-    not_required = set(pkg.name for pkg in pip_api.list_(not_required=True))
-    return [name for name in can_names if name in not_required]
+    current_pkg = get_current_pkg()
+    return [pkg.name for pkg in pip_api.show(packages)
+            if not pkg.required_by or pkg.required_by == current_pkg]
 
 def clean_unused():
     """Remove unused packages"""
