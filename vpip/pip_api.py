@@ -7,7 +7,7 @@ from argparse import Namespace
 from subprocess import CalledProcessError
 
 import case_conversion
-from pkg_resources import Requirement
+from packaging import Requirement
 
 from .execute import execute
 

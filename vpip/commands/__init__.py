@@ -1,11 +1,11 @@
 import re
 import importlib
-from pkg_resources import resource_listdir
+import importlib.resources
 
 #: List of builtin command names.
 names = [
     filename.partition(".")[0]
-    for filename in resource_listdir(__name__, "")
+    for filename in importlib.resources.contents(__name__)
     if re.match("[a-z]\w+\.py", filename)
 ]
 
