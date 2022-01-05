@@ -12,10 +12,6 @@ vpip
   :alt: PyPI
   :target: https://pypi.org/project/vpip
 
-..
-    
-  ``vpip`` = `venv <https://docs.python.org/3/library/venv.html>`_ + `pipm <https://github.com/jnoortheen/pipm>`_
-
 A CLI which aims to provide an ``npm``-like experience when installing Python packages.
 
 Features
@@ -81,6 +77,11 @@ Documentation
 -------------
 
 https://vpip.readthedocs.io/en/latest/index.html
+
+Similar projects
+----------------
+
+* `pipm <https://github.com/jnoortheen/pipm>`_ - which doesn't use virtualenv.
 
 Changelog
 ---------

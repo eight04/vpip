@@ -17,7 +17,13 @@ def get_script_folder(base):
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
 class GlobalScriptFolderGetter:
-    """Return an iterable of folders. Which are used to write global scripts.
+    """Return a list of folders. Which are used to write global scripts.
+
+    Following paths are used::
+
+        '~/.local/bin'
+        '~/bin'
+        sysconfig.get_path('scripts')
     """
     def __init__(self):
         import sysconfig

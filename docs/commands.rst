@@ -104,7 +104,7 @@ link
 
   vpip link
   
-Link console scripts installed in the local venv to the global Scripts folder so they can be invoked without activating the venv.
+Link console scripts installed in the local venv to the global Scripts folder so they can be invoked without activating the venv. See :func:`vpip.venv.get_global_script_folders`
 
 This command checks the ``console_scripts`` in ``setup.cfg`` to decide which commands should be linked.
 
