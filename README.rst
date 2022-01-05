@@ -86,6 +86,13 @@ Similar projects
 Changelog
 ---------
 
+* 0.5.0 (Jan 5, 2022)
+
+  - Change: bump to python@3.7+
+  - Change: drop pkg_resources, improve performance.
+  - Change: don't use pip internal when finding global scripts folder.
+  - Fix: use utf8 encoding when reading/writing ``setup.cfg`` or ``requirements.txt``.
+
 * 0.4.3 (Jan 31, 2020)
 
   - Fix: don't break sub-dependencies when uninstall.
