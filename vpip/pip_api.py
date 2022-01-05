@@ -6,8 +6,8 @@ import re
 from argparse import Namespace
 from subprocess import CalledProcessError
 
+from packaging.requirements import Requirement
 import case_conversion
-from pkg_resources import Requirement
 
 from .execute import execute
 
@@ -25,12 +25,12 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
     :rtype: Namespace
     """
     cmd = "install"
-    require = Requirement.parse(package)
+    require = Requirement(package)
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
     if upgrade:
         cmd += " -U"
-        if not latest and not require.specs:
+        if not latest and not require.specifier:
             try:
                 version = show([require.name])[0].version
             except CalledProcessError:

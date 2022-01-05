@@ -34,7 +34,7 @@ def update_venv(vv, global_pkg_name=None):
     import configparser
     env_dir = pathlib.Path(vv.env_dir)
     config = configparser.ConfigParser()
-    config.read_string("[DEFAULT]\n" + (env_dir / "pyvenv.cfg").read_text())
+    config.read_string("[DEFAULT]\n" + (env_dir / "pyvenv.cfg").read_text(encoding="utf8"))
     config_home = pathlib.Path(config.get("DEFAULT", "home"))
     # https://github.com/python/cpython/blob/0118d109d54bf75c99a8b0fa9aeae1a478ac4b7e/Lib/venv/__init__.py#L109
     current_home = pathlib.Path(getattr(sys, '_base_executable', sys.executable)).parent

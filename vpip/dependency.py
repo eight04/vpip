@@ -1,11 +1,41 @@
 import configparser
 import re
 from pathlib import Path
+from typing import Iterator
 
 from configupdater import ConfigUpdater
-from pkg_resources import parse_requirements
+from packaging.requirements import Requirement
 
 LOCK_FILE = "requirements-lock.txt"
+
+def parse_requirements(text) -> Iterator[Requirement]:
+    """Parse requirements text.
+
+    FIXME: switch to an external function from pip if possible.
+    https://pip.pypa.io/en/stable/reference/requirements-file-format/#requirements-file-format
+    """
+    for line in get_continued_lines(text):
+        # FIXME: handle options?
+        line = re.sub(r"(^|\s+)(#|--\w+|-e).+", "", line)
+        if not line:
+            continue
+        if re.match("https?:", line):
+            continue
+        if line.startswith("."):
+            continue
+        yield Requirement(line)
+
+def get_continued_lines(text) -> Iterator[str]:
+    last_line = ""
+    for line in text.split("\n"):
+        last_line += line
+        if line.endswith("\\"):
+            continue
+        if last_line.strip():
+            yield last_line.strip()
+            last_line = ""
+    if last_line.strip():
+        yield last_line.strip()
 
 def get_dev_requires():
     return parse_requirements(DevUpdater().get_requirements())
@@ -98,12 +128,12 @@ class ProdUpdater(Updater):
             self.config.add_section("options")
         self.config.set("options", "install_requires", "".join(
             "\n" + self.indent + l for l in lines))
-        self.file.write_text(str(self.config).replace("\r", ""), "utf8")
+        self.file.write_text(str(self.config).replace("\r", ""), encoding="utf8")
         if not self.file_py.exists():
             self.file_py.write_text("\n".join([
                 "from setuptools import setup",
                 "setup()"
-            ]))
+            ]), encoding="utf8")
         
 class UpdateDependencyResult:
     def __init__(self):
@@ -164,7 +194,7 @@ def update_lock():
         if pkg.name == "pip":
             continue
         lines.append("{}=={}".format(pkg.name, pkg.version))
-    Path(LOCK_FILE).write_text("\n".join(lines))
+    Path(LOCK_FILE).write_text("\n".join(lines), encoding="utf8")
 
 def add_dev(packages):
     return update_dependency(DevUpdater(), added=packages)

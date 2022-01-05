@@ -7,6 +7,7 @@ disable=
   bad-whitespace,
   
   anomalous-backslash-in-string,
+  consider-using-f-string,
   duplicate-code,
   global-statement,
   inconsistent-return-statements,
