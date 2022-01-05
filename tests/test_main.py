@@ -11,5 +11,5 @@ def test_global_script_folder():
     import os
     import pathlib
     paths = set(pathlib.Path(p) for p in os.environ["PATH"].split(os.pathsep))
-    assert any(pathlib.Path(f) in paths for f in get_global_script_folders())
+    assert any(f in paths for f in get_global_script_folders())
     

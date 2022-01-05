@@ -4,6 +4,7 @@ import shutil
 import venv
 from contextlib import contextmanager
 from pathlib import Path
+from typing import List
 
 from .execute import execute
 
@@ -16,24 +17,17 @@ def get_script_folder(base):
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
 class GlobalScriptFolderGetter:
-    """Return two folders. One is the system scripts folder and
-    one is the user-site scripts folder.
-    
-    :rtype: list[str]
+    """Return an iterable of folders. Which are used to write global scripts.
     """
     def __init__(self):
-        # this includes the system folder and the user-site folder
-        self.folders = None
-        
-    def __call__(self):
-        if self.folders:
-            return self.folders
-        from pip._internal.locations import distutils_scheme
+        import sysconfig
         self.folders = [
-            # FIXME: this won't work if vpip is installed inside a venv
-            distutils_scheme("foo")["scripts"],
-            distutils_scheme("foo", user=True)["scripts"]
+            Path("~/.local/bin").expanduser(),
+            Path("~/bin").expanduser(),
+            Path(sysconfig.get_path("scripts"))
         ]
+        
+    def __call__(self) -> List[Path]:
         return self.folders
         
 get_global_script_folders = GlobalScriptFolderGetter()
@@ -58,7 +52,7 @@ def get_path_without_venv(path, venv_dir):
     if not venv_dir:
         return path
     return os.pathsep.join(
-        p for p in re.split("\s*{}\s*".format(os.pathsep), path)
+        p for p in re.split(rf"\s*{os.pathsep}\s*", path)
         if not p.startswith(venv_dir))
                     
 def get_current_venv():

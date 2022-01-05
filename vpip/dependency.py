@@ -128,12 +128,12 @@ class ProdUpdater(Updater):
             self.config.add_section("options")
         self.config.set("options", "install_requires", "".join(
             "\n" + self.indent + l for l in lines))
-        self.file.write_text(str(self.config).replace("\r", ""), "utf8")
+        self.file.write_text(str(self.config).replace("\r", ""), encoding="utf8")
         if not self.file_py.exists():
             self.file_py.write_text("\n".join([
                 "from setuptools import setup",
                 "setup()"
-            ]))
+            ]), encoding="utf8")
         
 class UpdateDependencyResult:
     def __init__(self):
@@ -194,7 +194,7 @@ def update_lock():
         if pkg.name == "pip":
             continue
         lines.append("{}=={}".format(pkg.name, pkg.version))
-    Path(LOCK_FILE).write_text("\n".join(lines))
+    Path(LOCK_FILE).write_text("\n".join(lines), encoding="utf8")
 
 def add_dev(packages):
     return update_dependency(DevUpdater(), added=packages)
