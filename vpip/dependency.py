@@ -1,6 +1,7 @@
 import configparser
 import re
 from pathlib import Path
+from typing import Iterator
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement

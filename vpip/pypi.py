@@ -1,6 +1,6 @@
 from collections import namedtuple
+from packaging.version import parse as parse_version, LegacyVersion, Version
 import requests
-import packaging.version
 
 UpdateResult = namedtuple("UpdateResult", ["compatible", "latest"])
 
@@ -36,11 +36,11 @@ def check_update(pkg, curr_version):
     r.raise_for_status()
     
     # curr_version = packaging.version.parse(curr_version)
-    all_versions = [packaging.version.parse(v) for v in r.json()["releases"].keys()]
+    all_versions = [parse_version(v) for v in r.json()["releases"].keys()]
     all_versions = [v for v in all_versions if not v.is_prerelease]
     all_versions.sort()
     
-    curr_version = packaging.version.parse(curr_version)
+    curr_version = parse_version(curr_version)
     latest = None
     compatible = None
     
@@ -55,24 +55,16 @@ def check_update(pkg, curr_version):
     if compatible or latest:
         return UpdateResult(compatible, latest)
 
-def is_compatible(version, new_version):
+def is_compatible(version: Version, new_version: Version) -> bool:
     """Check if two versions are compatible. ``new_version`` may be smaller
     than ``version``.
-    
-    :type version: str
-    :type new_version: str
-    :rtype: bool
     """
-    version = to_version_tuple(version)
-    new_version = to_version_tuple(new_version)
-    if version[0] == new_version[0]:
-        if version[0] != 0:
+    if any(isinstance(v, LegacyVersion) for v in [version, new_version]):
+        return False
+    if version.major == new_version.major:
+        if version.major != 0:
             return True
-        if version[1] == new_version[1]:
+        if version.minor == new_version.minor:
             return True
     return False
-    
-def to_version_tuple(version):
-    """Split version into number tuple"""
-    return tuple(int(n) for n in str(version).split("."))
     
