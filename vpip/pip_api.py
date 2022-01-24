@@ -4,25 +4,30 @@ import json
 import pathlib
 import re
 from argparse import Namespace
+from typing import List
 
 from packaging.requirements import Requirement
 import case_conversion
 
 from .execute import execute
 
-def install(packages, install_scripts=None, upgrade=False, latest=False, deps=True):
-    """Install packages and return a list of collected packages.
+def install(
+    packages: List[str],
+    install_scripts: str = None,
+    upgrade: bool = False,
+    latest: bool = False,
+    deps: bool = True
+) -> List[str]:
+    """Install packages and return a list of collected package names.
     
-    :arg List[str] packages: A list of package name, which may include the version specifier. It can also be a URL.
-    :arg str install_scripts: Install scripts to a different folder. It uses
+    :arg packages: A list of package name, which may include the version specifier. It can also be a URL.
+    :arg install_scripts: Install scripts to a different folder. It uses
         the ``--install-option="--install-scripts=..."`` pip option.
-    :arg bool upgrade: Upgrade package.
-    :arg bool latest: Whether upgrade to the latest version. Otherwise upgrade
+    :arg upgrade: Upgrade package.
+    :arg latest: Whether upgrade to the latest version. Otherwise upgrade
         to the compatible version. This option has no effect if ``package``
         includes specifiers.
-    :arg bool deps: Whether to install dependencies.
-    :return: Package information returned by :func:`show`.
-    :rtype: Namespace
+    :arg deps: Whether to install dependencies.
     """
     cmd = "install"
 
