@@ -47,6 +47,9 @@ def install_global(packages, upgrade=False, latest=False):
     """
     from .. import venv, pip_api
     for pkg in packages:
+        if pkg.startswith("http"):
+            install_global_url(pkg)
+            continue
         vv = venv.get_global_pkg_venv(pkg)
         if vv.exists() and not upgrade:
             print("{} is already installed".format(pkg))
@@ -60,6 +63,33 @@ def install_global(packages, upgrade=False, latest=False):
         except Exception:
             vv.destroy()
             raise
+
+def get_pkg_from_url(url):
+    # FIXME: is there a faster way?
+    from .. import venv, pip_api
+    vv = venv.get_global_tmp_venv()
+    with vv.activate(auto_create=True):
+        pkg = pip_api.install(url, deps=False)
+    vv.destroy()
+    return pkg
+
+def install_global_url(url):
+    from .. import venv, pip_api
+    pkg = get_pkg_from_url(url)
+    vv = venv.get_global_pkg_venv(pkg.name)
+    if vv.exists():
+        result = input(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
+        if result in "yY":
+            vv.destroy()
+        else:
+            return
+    try:
+        with vv.activate(auto_create=True):
+            pip_api.install(url, pkg_name=pkg.name)
+            link_console_script(pkg.name)
+    except Exception:
+        vv.destroy()
+        raise
 
 def install_local(packages, dev=False, **kwargs):
     """Install local packages and save to dependency.

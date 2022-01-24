@@ -11,21 +11,28 @@ import case_conversion
 
 from .execute import execute
 
-def install(package, install_scripts=None, upgrade=False, latest=False):
+def install(package, install_scripts=None, upgrade=False, latest=False, deps=True, pkg_name=None):
     """Install a package and return the package info.
     
-    :arg str package: Package name. It may include the version specifier.
+    :arg str package: Package name. It may include the version specifier. It can also be a URL.
     :arg str install_scripts: Install scripts to a different folder. It uses
         the ``--install-option="--install-scripts=..."`` pip option.
     :arg bool upgrade: Upgrade package.
     :arg bool latest: Whether upgrade to the latest version. Otherwise upgrade
         to the compatible version. This option has no effect if ``package``
         includes specifiers.
+    :arg bool deps: Whether to install dependencies.
+    :arg str pkg_name: Package name. This is used when ``package`` is a URL. If not specified,
+        vpip parse installation output to find the installed package.
     :return: Package information returned by :func:`show`.
     :rtype: Namespace
     """
     cmd = "install"
-    require = Requirement(package)
+    if package.startswith("http"):
+        require = None
+    else:
+        require = Requirement(package)
+        pkg_name = pkg_name or require.name
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
     if upgrade:
@@ -37,8 +44,20 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
                 pass
             else:
                 package = "{}~={}".format(require.name, get_compatible_version(version))
-    execute_pip("{} {}".format(cmd, package))
-    return show([require.name])[0]
+    if not deps:
+        cmd += " --no-deps"
+    cmd = f"{cmd} {package}"
+    if not pkg_name:
+        packages = []
+        for line in execute_pip(cmd, capture=True):
+            print(line)
+            match = re.match("Installing collected packages:(.+)", line, re.I)
+            if match:
+                packages = [p.strip() for p in match.group(1).split(",")]
+        pkg_name = packages[-1]
+    else:
+        execute_pip(cmd)
+    return show([pkg_name])[0]
     
 def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""
