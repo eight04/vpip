@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import re
 import shutil
@@ -81,6 +83,11 @@ def get_global_pkg_venv(pkg):
     :rtype: Venv
     """
     return Venv(get_global_folder(pkg))
+
+def get_global_tmp_venv() -> Venv:
+    """Get the :class:`Venv` instance with a temporary name."""
+    from time import time
+    return Venv(get_global_folder(f"tmp-{time()}"))
     
 class Builder(venv.EnvBuilder):
     """An environment builder that could be used inside a venv.

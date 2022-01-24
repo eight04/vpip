@@ -66,14 +66,14 @@ def install_global(packages, upgrade=False, latest=False):
 
 def install_global_url(url):
     from pathlib import Path
-    from .. import venv
+    from .. import venv, pip_api
     vv = venv.get_global_tmp_venv()
     try:
         with vv.activate(auto_create=True):
             pkg = pip_api.install(url)
         vv2 = venv.get_global_pkg_venv(pkg.name)
         if vv2.exists():
-            result = prompt(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
+            result = input(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
             if result in ("yY"):
                 vv2.destroy()
             else:
