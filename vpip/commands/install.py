@@ -64,23 +64,27 @@ def install_global(packages, upgrade=False, latest=False):
             vv.destroy()
             raise
 
+def get_pkg_from_url(url):
+    # FIXME: is there a faster way?
+    vv = venv.get_global_tmp_venv()
+    with vv.activate(auto_create=True):
+        pkg = pip_api.install(url, deps=False)
+    vv.destroy()
+    return pkg
+
 def install_global_url(url):
     from pathlib import Path
     from .. import venv, pip_api
-    vv = venv.get_global_tmp_venv()
+    pkg = get_pkg_from_url(url)
+    vv = venv.get_global_pkg_venv(pkg.name)
+    if vv.exists():
+        result = input(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
+        if result in "yY":
+            vv.destroy()
+        else:
+            return
     try:
         with vv.activate(auto_create=True):
-            pkg = pip_api.install(url, deps=False)
-        vv.destroy()
-        vv2 = venv.get_global_pkg_venv(pkg.name)
-        if vv2.exists():
-            result = input(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
-            if result in "yY":
-                vv2.destroy()
-            else:
-                return
-        Path(vv.env_dir).rename(vv2.env_dir)
-        with vv2.activate():
             pip_api.install(url)
             link_console_script(pkg.name)
     except Exception:
