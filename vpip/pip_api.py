@@ -11,7 +11,7 @@ import case_conversion
 
 from .execute import execute
 
-def install(package, install_scripts=None, upgrade=False, latest=False):
+def install(package, install_scripts=None, upgrade=False, latest=False, deps=True):
     """Install a package and return the package info.
     
     :arg str package: Package name. It may include the version specifier. It can also be a URL.
@@ -21,6 +21,7 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
     :arg bool latest: Whether upgrade to the latest version. Otherwise upgrade
         to the compatible version. This option has no effect if ``package``
         includes specifiers.
+    :arg bool deps: Whether to install dependencies.
     :return: Package information returned by :func:`show`.
     :rtype: Namespace
     """
@@ -40,6 +41,8 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
                 pass
             else:
                 package = "{}~={}".format(require.name, get_compatible_version(version))
+    if not deps:
+        cmd += " --no-deps"
     packages = []
     for line in execute_pip("{} {}".format(cmd, package), capture=True):
         match = re.match("Installing collected packages:(.+)", line, re.I)
