@@ -55,7 +55,7 @@ def install(
     cmd = f"{cmd} {' '.join(packages)}"
     collected = []
     for line in execute_pip(cmd, capture=True):
-        print(line)
+        print(line, end="")
         match = re.match("Installing collected packages:(.+)", line, re.I)
         if match:
             collected = [p.strip() for p in match.group(1).split(",")]
