@@ -66,6 +66,7 @@ def install_global(packages, upgrade=False, latest=False):
 
 def get_pkg_from_url(url):
     # FIXME: is there a faster way?
+    from .. import venv, pip_api
     vv = venv.get_global_tmp_venv()
     with vv.activate(auto_create=True):
         pkg = pip_api.install(url, deps=False)
@@ -73,7 +74,6 @@ def get_pkg_from_url(url):
     return pkg
 
 def install_global_url(url):
-    from pathlib import Path
     from .. import venv, pip_api
     pkg = get_pkg_from_url(url)
     vv = venv.get_global_pkg_venv(pkg.name)
@@ -85,7 +85,7 @@ def install_global_url(url):
             return
     try:
         with vv.activate(auto_create=True):
-            pip_api.install(url)
+            pip_api.install(url, pkg_name=pkg.name)
             link_console_script(pkg.name)
     except Exception:
         vv.destroy()
