@@ -14,7 +14,7 @@ from .execute import execute
 def install(package, install_scripts=None, upgrade=False, latest=False):
     """Install a package and return the package info.
     
-    :arg str package: Package name. It may include the version specifier.
+    :arg str package: Package name. It may include the version specifier. It can also be a URL.
     :arg str install_scripts: Install scripts to a different folder. It uses
         the ``--install-option="--install-scripts=..."`` pip option.
     :arg bool upgrade: Upgrade package.
@@ -25,7 +25,10 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
     :rtype: Namespace
     """
     cmd = "install"
-    require = Requirement(package)
+    if package.startswith("http"):
+        require = None
+    else:
+        require = Requirement(package)
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
     if upgrade:
@@ -37,8 +40,13 @@ def install(package, install_scripts=None, upgrade=False, latest=False):
                 pass
             else:
                 package = "{}~={}".format(require.name, get_compatible_version(version))
-    execute_pip("{} {}".format(cmd, package))
-    return show([require.name])[0]
+    packages = []
+    for line in execute_pip("{} {}".format(cmd, package), capture=True):
+        match = re.match("Installing collected packages:(.+)", line, re.I)
+        if match:
+            packages = [p.strip() for p in match.group(1).split(",")]
+    pkg_name = require.name if require else packages[-1]
+    return show([pkg_name])[0]
     
 def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""

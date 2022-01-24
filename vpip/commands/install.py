@@ -47,6 +47,9 @@ def install_global(packages, upgrade=False, latest=False):
     """
     from .. import venv, pip_api
     for pkg in packages:
+        if pkg.startswith("http"):
+            install_global_url(pkg)
+            continue
         vv = venv.get_global_pkg_venv(pkg)
         if vv.exists() and not upgrade:
             print("{} is already installed".format(pkg))
@@ -60,6 +63,29 @@ def install_global(packages, upgrade=False, latest=False):
         except Exception:
             vv.destroy()
             raise
+
+def install_global_url(url):
+    from pathlib import Path
+    from .. import venv
+    vv = venv.get_global_tmp_venv()
+    try:
+        with vv.activate(auto_create=True):
+            pkg = pip_api.install(url)
+        vv2 = venv.get_global_pkg_venv(pkg.name)
+        if vv2.exists():
+            result = prompt(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
+            if result in ("yY"):
+                vv2.destroy()
+            else:
+                print("Cancelled. Destroying venv...")
+                vv.destroy()
+                return
+        Path(vv.env_dir).rename(vv2.env_dir)
+        with vv2.activate():
+            link_console_script(pkg.name)
+    except Exception:
+        vv.destroy()
+        raise
 
 def install_local(packages, dev=False, **kwargs):
     """Install local packages and save to dependency.
