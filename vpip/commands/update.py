@@ -50,16 +50,17 @@ def update_local(packages: List[str], latest: bool = False):
     if not packages:
         packages = list(dev_packages + prod_packages)
 
-    missing = set(packages) - dev_packages - prod_packages
+    names = [dependency.spec_to_pkg(i) for i in packages]
+    missing = set(names) - dev_packages - prod_packages
     if missing:
         raise Exception(f"Some packages are not installed: {', '.join(missing)}")
 
     pip_api.install(packages, upgrade=True, latest=latest)
-    infos = pip_api.show(packages)
+    infos = pip_api.show(names)
 
     dev_installed = {}
     prod_installed = {}
-    for info, pkg in zip(infos, packages):
+    for info, pkg in zip(infos, names):
         if pkg in dev_packages:
             dev_installed[pkg] = info.version
         if pkg in prod_packages:

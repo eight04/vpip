@@ -107,7 +107,7 @@ def install_local(packages, dev=False, **kwargs):
     installed = {}
     with vv.activate(True):
         pip_api.install(packages, **kwargs)
-        for info in pip_api.show(packages):
+        for info in pip_api.show([dependency.spec_to_pkg(i) for i in packages]):
             installed[info.name] = info.version
         if dev:
             dependency.add_dev(installed)
