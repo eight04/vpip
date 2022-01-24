@@ -4,17 +4,16 @@ import json
 import pathlib
 import re
 from argparse import Namespace
-from subprocess import CalledProcessError
 
 from packaging.requirements import Requirement
 import case_conversion
 
 from .execute import execute
 
-def install(package, install_scripts=None, upgrade=False, latest=False, deps=True, pkg_name=None):
-    """Install a package and return the package info.
+def install(packages, install_scripts=None, upgrade=False, latest=False, deps=True):
+    """Install packages and return a list of collected packages.
     
-    :arg str package: Package name. It may include the version specifier. It can also be a URL.
+    :arg List[str] packages: A list of package name, which may include the version specifier. It can also be a URL.
     :arg str install_scripts: Install scripts to a different folder. It uses
         the ``--install-option="--install-scripts=..."`` pip option.
     :arg bool upgrade: Upgrade package.
@@ -22,42 +21,40 @@ def install(package, install_scripts=None, upgrade=False, latest=False, deps=Tru
         to the compatible version. This option has no effect if ``package``
         includes specifiers.
     :arg bool deps: Whether to install dependencies.
-    :arg str pkg_name: Package name. This is used when ``package`` is a URL. If not specified,
-        vpip parse installation output to find the installed package.
     :return: Package information returned by :func:`show`.
     :rtype: Namespace
     """
     cmd = "install"
-    if package.startswith("http"):
-        require = None
-    else:
-        require = Requirement(package)
-        pkg_name = pkg_name or require.name
+
     if install_scripts:
         cmd += " --install-option \"--install-scripts={}\"".format(install_scripts)
     if upgrade:
-        cmd += " -U"
-        if not latest and not require.specifier:
-            try:
-                version = show([require.name])[0].version
-            except CalledProcessError:
-                pass
-            else:
-                package = "{}~={}".format(require.name, get_compatible_version(version))
+        cmd += " -U --upgrade-strategy eager"
     if not deps:
         cmd += " --no-deps"
-    cmd = f"{cmd} {package}"
-    if not pkg_name:
-        packages = []
-        for line in execute_pip(cmd, capture=True):
-            print(line)
-            match = re.match("Installing collected packages:(.+)", line, re.I)
-            if match:
-                packages = [p.strip() for p in match.group(1).split(",")]
-        pkg_name = packages[-1]
-    else:
-        execute_pip(cmd)
-    return show([pkg_name])[0]
+        
+    need_info = []
+    for i, pkg in enumerate(packages):
+        if upgrade and not pkg.startswith("http") and not latest and not Requirement(pkg).specifier:
+            # compatible update. find current version
+            need_info.append((i, pkg))
+    result = show([v for k, v in need_info])
+    if len(result) != len(need_info):
+        installed = set(r.name for r in result)
+        needed = set(v for k, v in need_info)
+        missing = list(needed - installed)
+        raise Exception(f"Upgrade error: some packages are not installed: {', '.join(missing)}")
+    for info, (i, pkg) in zip(result, need_info):
+        packages[i] = f"{pkg}~={get_compatible_version(info.version)}"
+
+    cmd = f"{cmd} {' '.join(packages)}"
+    collected = []
+    for line in execute_pip(cmd, capture=True):
+        print(line)
+        match = re.match("Installing collected packages:(.+)", line, re.I)
+        if match:
+            collected = [p.strip() for p in match.group(1).split(",")]
+    return collected
     
 def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""
