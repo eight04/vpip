@@ -1,10 +1,11 @@
 import os
 import re
 import shutil
+import sysconfig
 import venv
 from contextlib import contextmanager
 from pathlib import Path
-from typing import List
+from typing import Iterable
 
 from .execute import execute
 
@@ -25,16 +26,20 @@ class GlobalScriptFolderGetter:
         '~/bin'
         sysconfig.get_path('scripts')
     """
-    def __init__(self):
-        import sysconfig
-        self.folders = [
+    def __call__(self) -> Iterable[Path]:
+        folders = set([
             Path("~/.local/bin").expanduser(),
             Path("~/bin").expanduser(),
             Path(sysconfig.get_path("scripts"))
-        ]
-        
-    def __call__(self) -> List[Path]:
-        return self.folders
+        ])
+        cache = []
+        paths = [Path(p) for p in os.environ["PATH"].split(os.pathsep)]
+        for path in paths:
+            if path in folders:
+                yield path
+                cache.append(path)
+        if not cache:
+            raise Exception('Cannot find a valid scripts folder in env variable PATH')
         
 get_global_script_folders = GlobalScriptFolderGetter()
 
