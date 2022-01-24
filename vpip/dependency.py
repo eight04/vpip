@@ -215,3 +215,5 @@ def detect_indent(text):
             return match.group(1)
     return None
     
+def spec_to_pkg(text: str) -> str:
+    return Requirement(text).name

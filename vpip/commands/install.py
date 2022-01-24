@@ -58,7 +58,7 @@ def install_global(packages, upgrade=False, latest=False):
             with vv.activate(True):
                 # TODO: make pip support install_scripts
                 # https://github.com/pypa/pip/issues/3934
-                pip_api.install(pkg, upgrade=upgrade, latest=latest)
+                pip_api.install([pkg], upgrade=upgrade, latest=latest)
                 link_console_script(pkg)
         except Exception:
             vv.destroy()
@@ -69,24 +69,24 @@ def get_pkg_from_url(url):
     from .. import venv, pip_api
     vv = venv.get_global_tmp_venv()
     with vv.activate(auto_create=True):
-        pkg = pip_api.install(url, deps=False)
+        [pkg] = pip_api.install([url], deps=False)
     vv.destroy()
     return pkg
 
 def install_global_url(url):
     from .. import venv, pip_api
     pkg = get_pkg_from_url(url)
-    vv = venv.get_global_pkg_venv(pkg.name)
+    vv = venv.get_global_pkg_venv(pkg)
     if vv.exists():
-        result = input(f"{pkg.name} has already been installed. Overwrite? (y/n) ")
+        result = input(f"{pkg} has already been installed. Overwrite? (y/n) ")
         if result in "yY":
             vv.destroy()
         else:
             return
     try:
         with vv.activate(auto_create=True):
-            pip_api.install(url, pkg_name=pkg.name)
-            link_console_script(pkg.name)
+            pip_api.install([url])
+            link_console_script(pkg)
     except Exception:
         vv.destroy()
         raise
@@ -106,9 +106,9 @@ def install_local(packages, dev=False, **kwargs):
     vv = venv.get_current_venv()
     installed = {}
     with vv.activate(True):
-        for pkg in packages:
-            result = pip_api.install(pkg, **kwargs)
-            installed[pkg] = result.version
+        pip_api.install(packages, **kwargs)
+        for info in pip_api.show([dependency.spec_to_pkg(i) for i in packages]):
+            installed[info.name] = info.version
         if dev:
             dependency.add_dev(installed)
         else:
