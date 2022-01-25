@@ -47,6 +47,7 @@ Install:
 * ``vpip install`` - Create/activate a local venv and install all dependencies.
 * ``vpip install configupdater`` - Create/activate a local venv, install ``configupdater``, and add to production dependency.
 * ``vpip install -g youtube-dl`` - Create a venv under ``~/.vpip``, install ``youtube-dl``, and link the executable (``youtube-dl.exe``) to the script folder.
+* ``vpip install -g https://github.com/eight04/ComicCrawler/archive/refs/heads/master.zip`` - You can also install global CLI from a URL.
 
 Uninstall:
 
@@ -85,6 +86,13 @@ Similar projects
 
 Changelog
 ---------
+
+* 0.6.0 (Jan 25, 2022)
+
+  - Fix: make sure the script folder is in env variable path when ``vpip link``.
+  - Add: support installing global CLI from a URL.
+  - Change: ``pip_api.install`` now accepts multiple packages.
+  - Change: ``vpip update`` now updates sub-dependencies.
 
 * 0.5.0 (Jan 5, 2022)
 
