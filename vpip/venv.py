@@ -22,11 +22,13 @@ GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 class GlobalScriptFolderGetter:
     """Return a list of folders. Which are used to write global scripts.
 
-    Following paths are used::
+    Following paths are checked against env variable ``PATH``::
 
         '~/.local/bin'
         '~/bin'
         sysconfig.get_path('scripts')
+
+    They are only returned if included in ``PATH``.
     """
     def __call__(self) -> Iterable[Path]:
         folders = set([

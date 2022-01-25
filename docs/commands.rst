@@ -23,8 +23,10 @@ The version range of the development dependency is pinned and the version range 
 
 When ``PACKAGE`` is not specified. The tool will install all dependencies to the local venv. It executes two commands::
 
+    pip install -r requirements-lock.txt
     pip install -e .
-    pip install -r requirements.txt
+
+``PACKAGE`` can also be a URL but it will only work with ``-g`` flag.
 
 Options:
 
@@ -115,7 +117,7 @@ update_venv
 
   vpip update_venv [-g [PACKAGE ...]]
   
-Update/rebuild the venv folder. It compares the Python version inside the venv with the Python outside of the venv. If they are incompatible then rebuild the folder. Otherwise, this command upgrade ``pip`` inside the venv.
+Update/rebuild the venv folder. It compares the Python version inside the venv with the Python outside of the venv. If they are incompatible then rebuild the folder. Otherwise, this command upgrades ``pip`` inside the venv.
 
 Options:
 
