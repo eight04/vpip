@@ -7,7 +7,7 @@ import sysconfig
 import venv
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, List
 
 from .execute import execute
 
@@ -17,10 +17,10 @@ def get_script_folder(base):
     return os.path.join(base, "bin")
     
 #: Absolute path to the global package venv folder ``~/.vpip/pkg_venvs``
-GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
+GLOBAL_FOLDER: str = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
 #: These packages are pre-installed by vpip. They are excluded from the lock file. You can update them via ``update_venv`` command.
-PREINSTALLED_PACKAGES = ["pip", "wheel"]
+PREINSTALLED_PACKAGES: List[str] = ["pip", "wheel"]
 
 class GlobalScriptFolderGetter:
     """Return a list of folders. Which are used to write global scripts.

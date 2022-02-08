@@ -9,7 +9,9 @@ Constants
 ---------
 
 .. autodata:: GLOBAL_FOLDER
-    :annotation:
+    :no-value:
+
+.. autodata:: PREINSTALLED_PACKAGES
 
 Functions
 ---------
