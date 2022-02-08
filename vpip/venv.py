@@ -112,7 +112,7 @@ class Builder(venv.EnvBuilder):
         
     def post_setup(self, context):
         # update pip to latest
-        execute([context.env_exe, "-Im", "pip", "install", "-U", "pip"])        
+        execute([context.env_exe, "-Im", "pip", "install", "-U", "pip", "wheel"])        
         
 
 class Venv:

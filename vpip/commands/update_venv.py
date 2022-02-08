@@ -51,5 +51,5 @@ def update_venv(vv, global_pkg_name=None):
     # update pip
     from .. import pip_api
     with vv.activate():
-        pip_api.install(["pip"], upgrade=True, latest=True)
+        pip_api.install(["pip", "wheel"], upgrade=True, latest=True)
     
