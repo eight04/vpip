@@ -19,6 +19,9 @@ def get_script_folder(base):
 #: Absolute path to the global package venv folder ``~/.vpip/pkg_venvs``
 GLOBAL_FOLDER = os.path.normpath(os.path.expanduser("~/.vpip/pkg_venvs"))
 
+#: These packages are pre-installed by vpip. They are excluded from the lock file. You can update them via ``update_venv`` command.
+PREINSTALLED_PACKAGES = ["pip", "wheel"]
+
 class GlobalScriptFolderGetter:
     """Return a list of folders. Which are used to write global scripts.
 
@@ -112,7 +115,7 @@ class Builder(venv.EnvBuilder):
         
     def post_setup(self, context):
         # update pip to latest
-        execute([context.env_exe, "-Im", "pip", "install", "-U", "pip", "wheel"])        
+        execute([context.env_exe, "-Im", "pip", "install", "-U", *PREINSTALLED_PACKAGES])        
         
 
 class Venv:

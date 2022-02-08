@@ -58,6 +58,7 @@ def get_top_packages(packages: List[str]) -> List[str]:
 def clean_unused():
     """Remove unused packages"""
     from .. import pip_api, dependency
+    from ..venv import PREINSTALLED_PACKAGES
     deps = []
     for req in dependency.get_dev_requires():
         deps.append(req.name)
@@ -68,7 +69,7 @@ def clean_unused():
     def get_unused():
         return [
             pkg.name for pkg in pip_api.list_(not_required=True)
-            if pkg.name not in used and pkg.name != "pip"
+            if pkg.name not in used and pkg.name not in PREINSTALLED_PACKAGES
         ]
         
     unused = get_unused()
