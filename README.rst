@@ -87,6 +87,10 @@ Similar projects
 Changelog
 ---------
 
+* 0.7.0 (Feb 9, 2022)
+
+  - Change: now ``wheel`` is also pre-installed in venv like ``pip``.
+
 * 0.6.0 (Jan 25, 2022)
 
   - Fix: make sure the script folder is in env variable path when ``vpip link``.
