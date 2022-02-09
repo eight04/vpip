@@ -117,7 +117,7 @@ update_venv
 
   vpip update_venv [-g [PACKAGE ...]]
   
-Update/rebuild the venv folder. It compares the Python version inside the venv with the Python outside of the venv. If they are incompatible then rebuild the folder. Otherwise, this command upgrades ``pip`` inside the venv.
+Update/rebuild the venv folder. It compares the Python version inside the venv with the Python outside of the venv. If they are incompatible then rebuild the folder. Otherwise, this command upgrades ``pip``, ``wheel``, etc, inside the venv. (See also :data:`~vpip.venv.PREINSTALLED_PACKAGES`.)
 
 Options:
 

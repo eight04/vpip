@@ -189,9 +189,10 @@ def has_lock():
 def update_lock():
     """Run ``pip freeze`` and update the lock file"""
     from . import pip_api
+    from .venv import PREINSTALLED_PACKAGES
     lines = []
     for pkg in pip_api.list_():
-        if pkg.name == "pip":
+        if pkg.name in PREINSTALLED_PACKAGES:
             continue
         lines.append("{}=={}".format(pkg.name, pkg.version))
     Path(LOCK_FILE).write_text("\n".join(lines), encoding="utf8")
