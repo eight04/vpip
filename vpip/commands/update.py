@@ -51,6 +51,9 @@ def update_local(packages: List[str], latest: bool = False):
         packages = list(dev_packages | prod_packages)
 
     names = [dependency.spec_to_pkg(i) for i in packages]
+    missing = set(names) - dev_packages - prod_packages
+    if missing:
+        raise Exception(f"Some packages are not installed: {', '.join(missing)}")
 
     pip_api.install([*packages, *pip_api.freeze(include=dev_packages | prod_packages, exclude=set(names))], upgrade=True, latest=latest)
     infos = pip_api.show(names)
