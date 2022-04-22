@@ -1,5 +1,6 @@
 import configparser
 import re
+from collections import OrderedDict
 from pathlib import Path
 from typing import Iterator
 
@@ -42,6 +43,12 @@ def get_dev_requires():
     
 def get_prod_requires():
     return parse_requirements(ProdUpdater().get_requirements())
+
+def get_all() -> list[Requirement]:
+    m = OrderedDict()
+    m.update((r.name, r) for r in get_dev_requires())
+    m.update((r.name, r) for r in get_prod_requires())
+    return list(m.values())
     
 class Updater:
     """Dependency updater interface. Extend this class to create a new updater.

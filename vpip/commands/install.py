@@ -106,7 +106,11 @@ def install_local(packages, dev=False, **kwargs):
     vv = venv.get_current_venv()
     installed = {}
     with vv.activate(True):
-        pip_api.install(packages, **kwargs)
+        pinned_deps = pip_api.freeze(
+            include=set(r.name for r in dependency.get_all()),
+            exclude=set(dependency.spec_to_pkg(p) for p in packages)
+        )
+        pip_api.install([*packages, *pinned_deps], **kwargs)
         for info in pip_api.show([dependency.spec_to_pkg(i) for i in packages]):
             installed[info.name] = info.version
         if dev:

@@ -4,6 +4,7 @@ import json
 import pathlib
 import re
 from argparse import Namespace
+from collections.abc import Container
 from typing import List
 
 from packaging.requirements import Requirement
@@ -139,6 +140,21 @@ def list_(not_required=False, format="json"):
     for line in execute_pip(cmd, capture=True):
         lines.append(line)
     return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
+
+def freeze(include: Container[str] | None = None, exclude: Container[str] | None = None) -> List[str]:
+    """List installed packages in ``pip freeze`` format (``my_pkg==1.2.3``).
+
+    :arg include: If defined, only returns specified packages.
+    :arg exclude: If defined, exclude specified packages.
+    """
+    result = []
+    for p in list_():
+        if include is not None and p.name not in include:
+            continue
+        if exclude is not None and p.name in exclude:
+            continue
+        result.append(f"{p.name}=={p.version}")
+    return result
     
 def create_ns_from_dict(d):
     """Create a namespace object from a dict.
