@@ -27,5 +27,5 @@ def test_sub_deps_conflict():
         install_local([])
         update_local(["twine~=4.0"])
         docutils,  = pip_api.show(["docutils"])
-        assert docutils.version.starswith("0.17")
+        assert docutils.version.startswith("0.17")
     
