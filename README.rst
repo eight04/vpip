@@ -1,9 +1,10 @@
 vpip
 ====
 
-.. image:: https://travis-ci.org/eight04/vpip.svg?branch=master
-  :target: https://travis-ci.org/eight04/vpip
-    
+.. image:: https://github.com/eight04/vpip/actions/workflows/build.yml/badge.svg
+   :target: https://github.com/eight04/vpip/actions/workflows/build.yml
+   :alt: Build status
+
 .. image:: https://readthedocs.org/projects/vpip/badge/?version=latest
   :target: https://vpip.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
@@ -86,6 +87,11 @@ Similar projects
 
 Changelog
 ---------
+
+* 0.8.0 (Apr 23, 2022)
+
+  - Change: now vpip would try to avoid sub-dependencies conflicts by passing all dependencies to ``pip install`` when installing/updating packages.
+  - Fix: now ``vpip update`` won't install packages whose env marker evaluates to false.
 
 * 0.7.0 (Feb 9, 2022)
 
