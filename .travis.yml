@@ -1,9 +1,0 @@
-language: python
-python:
-  - "3.10"
-  - "nightly"
-install:
-  - pip install -r requirements-lock.txt
-  - pip install .
-script:
-  - python cute.py test
