@@ -2,7 +2,7 @@ import configparser
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, List
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement
@@ -44,7 +44,7 @@ def get_dev_requires():
 def get_prod_requires():
     return parse_requirements(ProdUpdater().get_requirements())
 
-def get_all() -> list[Requirement]:
+def get_all() -> List[Requirement]:
     m = OrderedDict()
     m.update((r.name, r) for r in get_dev_requires())
     m.update((r.name, r) for r in get_prod_requires())

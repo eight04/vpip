@@ -4,8 +4,7 @@ import json
 import pathlib
 import re
 from argparse import Namespace
-from collections.abc import Container
-from typing import List, Optional
+from typing import List, Optional, Container
 
 from packaging.requirements import Requirement
 import case_conversion
