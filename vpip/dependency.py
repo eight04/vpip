@@ -127,7 +127,7 @@ class ProdUpdater(Updater):
         
     def get_spec(self, name, version):
         if not version.startswith("0."):
-            version = re.match("\d+\.\d+", version).group()
+            version = re.match(r"\d+\.\d+", version).group()
         return "{}~={}".format(name, version)
         
     def write_requirements(self, lines):
@@ -214,7 +214,7 @@ def delete(packages):
     
 def detect_indent(text):
     for line in text.split("\n"):
-        match = re.match("(\s+)\S", line)
+        match = re.match(r"(\s+)\S", line)
         if match:
             return match.group(1)
     return None

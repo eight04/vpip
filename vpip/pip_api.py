@@ -5,7 +5,7 @@ import pathlib
 import re
 from argparse import Namespace
 from collections.abc import Container
-from typing import List
+from typing import List, Optional
 
 from packaging.requirements import Requirement
 import case_conversion
@@ -109,7 +109,7 @@ def show(packages, verbose=False):
             ns = Namespace()
             continue
             
-        match = re.match("([\w-]+):\s*(.*)", line)
+        match = re.match(r"([\w-]+):\s*(.*)", line)
         if match:
             name, value = match.groups()
             name = case_conversion.snakecase(name)
@@ -118,7 +118,7 @@ def show(packages, verbose=False):
             last_name = name
             continue
             
-        match = re.match("\s+(\S.*)", line)
+        match = re.match(r"\s+(\S.*)", line)
         if match and last_name:
             value = getattr(ns, last_name) + "\n" + match.group(1).strip()
             setattr(ns, last_name, value)
@@ -141,7 +141,7 @@ def list_(not_required=False, format="json"):
         lines.append(line)
     return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
 
-def freeze(include: Container[str] | None = None, exclude: Container[str] | None = None) -> List[str]:
+def freeze(include: Optional[Container[str]] = None, exclude: Optional[Container[str]] = None) -> List[str]:
     """List installed packages in ``pip freeze`` format (``my_pkg==1.2.3``).
 
     :arg include: If defined, only returns specified packages.
