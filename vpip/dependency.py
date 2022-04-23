@@ -1,7 +1,8 @@
 import configparser
 import re
+from collections import OrderedDict
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, List
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement
@@ -42,6 +43,12 @@ def get_dev_requires():
     
 def get_prod_requires():
     return parse_requirements(ProdUpdater().get_requirements())
+
+def get_all() -> List[Requirement]:
+    m = OrderedDict()
+    m.update((r.name, r) for r in get_dev_requires())
+    m.update((r.name, r) for r in get_prod_requires())
+    return list(m.values())
     
 class Updater:
     """Dependency updater interface. Extend this class to create a new updater.
@@ -120,7 +127,7 @@ class ProdUpdater(Updater):
         
     def get_spec(self, name, version):
         if not version.startswith("0."):
-            version = re.match("\d+\.\d+", version).group()
+            version = re.match(r"\d+\.\d+", version).group()
         return "{}~={}".format(name, version)
         
     def write_requirements(self, lines):
@@ -190,11 +197,7 @@ def update_lock():
     """Run ``pip freeze`` and update the lock file"""
     from . import pip_api
     from .venv import PREINSTALLED_PACKAGES
-    lines = []
-    for pkg in pip_api.list_():
-        if pkg.name in PREINSTALLED_PACKAGES:
-            continue
-        lines.append("{}=={}".format(pkg.name, pkg.version))
+    lines = pip_api.freeze(exclude=PREINSTALLED_PACKAGES)
     Path(LOCK_FILE).write_text("\n".join(lines), encoding="utf8")
 
 def add_dev(packages):
@@ -211,7 +214,7 @@ def delete(packages):
     
 def detect_indent(text):
     for line in text.split("\n"):
-        match = re.match("(\s+)\S", line)
+        match = re.match(r"(\s+)\S", line)
         if match:
             return match.group(1)
     return None
