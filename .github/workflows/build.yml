@@ -11,6 +11,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: |
+          pip install -U pip wheel setuptools
           pip install -r requirements-lock.txt
           pip install .
           python cute.py test
