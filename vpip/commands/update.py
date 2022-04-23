@@ -44,11 +44,16 @@ def update_local(packages: List[str], latest: bool = False):
     """
     from .. import dependency, pip_api
 
-    dev_packages = set(r.name for r in dependency.get_dev_requires())
-    prod_packages = set(r.name for r in dependency.get_prod_requires())
+    dev_requires = list(dependency.get_dev_requires())
+    prod_requires = list(dependency.get_prod_requires())
+    dev_packages = set(r.name for r in dev_requires)
+    prod_packages = set(r.name for r in prod_requires)
 
     if not packages:
-        packages = list(dev_packages | prod_packages)
+        packages = [r.name for r in dev_requires + prod_requires if r.marker is None or r.marker.evaluate()]
+
+    if not packages:
+        return
 
     names = [dependency.spec_to_pkg(i) for i in packages]
     missing = set(names) - dev_packages - prod_packages

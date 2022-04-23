@@ -15,17 +15,33 @@ def test_global_script_folder():
     
 def test_sub_deps_conflict():
     from yamldirs import create_files
-    from vpip.commands.install import install_local
+    from vpip.commands.install import install_local_first_time
     from vpip.commands.update import update_local
-    from vpip import pip_api
+    from vpip import pip_api, venv
     files = """
     requirements.txt: |
         Sphinx~=4.0
         twine~=3.0
     """
     with create_files(files):
-        install_local([])
-        update_local(["twine~=4.0"])
-        docutils,  = pip_api.show(["docutils"])
-        assert docutils.version.startswith("0.17")
+        install_local_first_time()
+        with venv.get_current_venv().activate():
+            update_local(["twine~=4.0"])
+            docutils,  = pip_api.show(["docutils"])
+            assert docutils.version.startswith("0.17")
     
+def test_marker():
+    from yamldirs import create_files
+    from vpip.commands.install import install_local_first_time
+    from vpip.commands.update import update_local
+    from vpip import pip_api, venv
+    files = """
+    requirements.txt: |
+        twine~=3.0; python_version < '3'
+    """
+    with create_files(files):
+        install_local_first_time()
+        with venv.get_current_venv().activate():
+            assert all(r.name != "twine" for r in pip_api.list_())
+            update_local([])
+            assert all(r.name != "twine" for r in pip_api.list_())
