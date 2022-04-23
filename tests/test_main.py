@@ -25,8 +25,8 @@ def test_sub_deps_conflict():
     """
     with create_files(files):
         install_local_first_time()
-        update_local(["twine~=4.0"])
         with venv.get_current_venv().activate():
+            update_local(["twine~=4.0"])
             docutils,  = pip_api.show(["docutils"])
             assert docutils.version.startswith("0.17")
     
@@ -43,6 +43,5 @@ def test_marker():
         install_local_first_time()
         with venv.get_current_venv().activate():
             assert all(r.name != "twine" for r in pip_api.list_())
-        update_local([])
-        with venv.get_current_venv().activate():
+            update_local([])
             assert all(r.name != "twine" for r in pip_api.list_())

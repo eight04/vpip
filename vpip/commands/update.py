@@ -52,6 +52,9 @@ def update_local(packages: List[str], latest: bool = False):
     if not packages:
         packages = [r.name for r in dev_requires + prod_requires if r.marker is None or r.marker.evaluate()]
 
+    if not packages:
+        return
+
     names = [dependency.spec_to_pkg(i) for i in packages]
     missing = set(names) - dev_packages - prod_packages
     if missing:
