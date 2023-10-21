@@ -1,11 +1,9 @@
 [MESSAGES CONTROL]
 disable=
-  raw-checker-failed, locally-disabled, locally-enabled, file-ignored,
-  suppressed-message, fixme,
-  
-  # https://github.com/PyCQA/pylint/issues/1368
-  bad-whitespace,
-  
+  abstract-method,
+  broad-exception-raised,
+  suppressed-message,
+  fixme,
   anomalous-backslash-in-string,
   consider-using-f-string,
   duplicate-code,
@@ -13,7 +11,6 @@ disable=
   inconsistent-return-statements,
   import-outside-toplevel,
   missing-docstring, multiple-imports,
-  no-self-use,
   redefined-outer-name, redefined-builtin,
   trailing-whitespace, too-many-statements, too-many-return-statements,
   unused-argument,
@@ -33,9 +30,6 @@ attr-rgx=(([a-z][a-z0-9_]{1,30})|(_[a-z0-9_]*))$
 const-rgx=^(([A-Z_][A-Z0-9_]*)|(__.*__)|[a-z_][a-z0-9_]*)$
 method-rgx=(([a-z][a-z0-9_]{1,30})|(_[a-z0-9_]*))$
 variable-rgx=(([a-z][a-z0-9_]{,30})|(_[a-z0-9_]*))$
-
-[FORMAT]
-no-space-check=trailing-comma,empty-line
 
 [VARIABLES]
 callbacks=_
