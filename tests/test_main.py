@@ -45,3 +45,19 @@ def test_marker():
             assert all(r.name != "twine" for r in pip_api.list_())
             update_local([])
             assert all(r.name != "twine" for r in pip_api.list_())
+
+def test_toml():
+    from yamldirs import create_files
+    from vpip.commands.install import install_local_first_time, install_local
+    from vpip import dependency
+    files = """
+    requirements.txt: |
+        twine~=3.0
+    """
+    with create_files(files):
+        install_local_first_time()
+        install_local(["requests"])
+        u = dependency.TomlUpdater()
+        assert u.get_requirements().startswith("requests~=")
+
+
