@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import configparser
 import re
 from collections import OrderedDict
@@ -6,6 +7,8 @@ from typing import Iterator, List
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement
+import tomlkit
+from tomlkit.toml_file import TOMLFile
 
 LOCK_FILE = "requirements-lock.txt"
 
@@ -42,7 +45,7 @@ def get_dev_requires():
     return parse_requirements(DevUpdater().get_requirements())
     
 def get_prod_requires():
-    return parse_requirements(ProdUpdater().get_requirements())
+    return parse_requirements(get_prod_updater().get_requirements())
 
 def get_all() -> List[Requirement]:
     m = OrderedDict()
@@ -53,6 +56,7 @@ def get_all() -> List[Requirement]:
 class Updater:
     """Dependency updater interface. Extend this class to create a new updater.
     """
+    @abstractmethod
     def get_requirements(self):
         """Get requirements string.
         
@@ -60,6 +64,7 @@ class Updater:
         """
         raise NotImplementedError
         
+    @abstractmethod
     def get_spec(self, name, version):
         """Get version specifier.
         
@@ -70,6 +75,7 @@ class Updater:
         """
         raise NotImplementedError
         
+    @abstractmethod
     def write_requirements(self, lines):
         """Write new requirements to file.
         
@@ -97,7 +103,65 @@ class DevUpdater(Updater):
             for line in lines:
                 f.write(line + "\n")
                 
+def get_prod_updater():
+    if TomlUpdater.available():
+        return TomlUpdater()
+    if SetupUpdater.available():
+        return SetupUpdater()
+    return TomlUpdater()
+
 class ProdUpdater(Updater):
+    """Production dependency base class"""
+    file_path = "" # should be overridden
+
+    def get_spec(self, name, version):
+        if not version.startswith("0."):
+            version = re.match(r"\d+\.\d+", version).group()
+        return "{}~={}".format(name, version)
+        
+    @classmethod
+    def available(cls):
+        return Path(cls.file_path).exists()
+
+class TomlUpdater(ProdUpdater):
+    """Production dependency (pyproject.toml) updater."""
+    def __init__(self):
+        self.file = TOMLFile("pyproject.toml")
+        self.document = None
+        
+    def read(self):
+        if self.document is not None:
+            return
+        try:
+            self.document = self.file.read()
+        except OSError:
+            return
+        
+    def get_requirements(self):
+        self.read()
+        if not self.document:
+            return ""
+        try:
+            items = self.document["project"]["dependencies"]
+            return "\n".join(items)
+        except KeyError:
+            pass
+        return ""
+        
+    def get_name(self):
+        self.read()
+        return self.document["project"]["name"]
+        
+    def write_requirements(self, lines):
+        if not self.document:
+            self.document = tomlkit.document()
+        if "project" not in self.document:
+            table = tomlkit.table()
+            self.document.add("project", table)
+        self.document["project"]["dependencies"] = lines
+        self.file.write(self.document)
+
+class SetupUpdater(ProdUpdater):
     """Production dependency (setup.cfg) updater."""
     def __init__(self):
         self.file = Path("setup.cfg")
@@ -124,11 +188,6 @@ class ProdUpdater(Updater):
     def get_name(self):
         self.read()
         return self.config.get("metadata", "name").value
-        
-    def get_spec(self, name, version):
-        if not version.startswith("0."):
-            version = re.match(r"\d+\.\d+", version).group()
-        return "{}~={}".format(name, version)
         
     def write_requirements(self, lines):
         if "options" not in self.config:
@@ -204,12 +263,12 @@ def add_dev(packages):
     return update_dependency(DevUpdater(), added=packages)
     
 def add_prod(packages, **kwargs):
-    return update_dependency(ProdUpdater(), added=packages)
+    return update_dependency(get_prod_updater(), added=packages)
 
 def delete(packages):
     return (
         update_dependency(DevUpdater(), removed=packages),
-        update_dependency(ProdUpdater(), removed=packages)
+        update_dependency(get_prod_updater(), removed=packages)
     )
     
 def detect_indent(text):
