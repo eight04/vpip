@@ -124,9 +124,10 @@ class ProdUpdater(Updater):
         return Path(cls.file_path).exists()
 
 class TomlUpdater(ProdUpdater):
+    file_path = "pyproject.toml"
     """Production dependency (pyproject.toml) updater."""
     def __init__(self):
-        self.file = TOMLFile("pyproject.toml")
+        self.file = TOMLFile(self.file_path)
         self.document = None
         
     def read(self):
@@ -163,8 +164,9 @@ class TomlUpdater(ProdUpdater):
 
 class SetupUpdater(ProdUpdater):
     """Production dependency (setup.cfg) updater."""
+    file_path = "setup.cfg"
     def __init__(self):
-        self.file = Path("setup.cfg")
+        self.file = Path(self.file_path)
         self.file_py = self.file.with_suffix(".py")
         self.config = ConfigUpdater()
         self.indent = "  " # default to 2 spaces indent?
