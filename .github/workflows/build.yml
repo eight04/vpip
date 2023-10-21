@@ -12,5 +12,5 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: pip install -U pip wheel
       - run: pip install -r requirements-lock.txt
-      # - run: pip install .
+      - run: pip install .
       - run: python cute.py test
