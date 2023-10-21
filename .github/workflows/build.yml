@@ -10,8 +10,7 @@ jobs:
       - uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - run: |
-          pip install -U pip wheel setuptools
-          pip install -r requirements-lock.txt
-          pip install .
-          python cute.py test
+      - run: pip install -U pip wheel
+      - run: pip install -r requirements-lock.txt
+      # - run: pip install .
+      - run: python cute.py test
