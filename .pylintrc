@@ -1,20 +1,22 @@
 [MESSAGES CONTROL]
 disable=
   abstract-method,
-  broad-exception-raised,
-  suppressed-message,
-  fixme,
   anomalous-backslash-in-string,
+  broad-exception-raised,
   consider-using-f-string,
   duplicate-code,
+  fixme,
   global-statement,
-  inconsistent-return-statements,
   import-outside-toplevel,
-  missing-docstring, multiple-imports,
+  inconsistent-return-statements,
+  line-too-long,
+  missing-docstring,
+  missing-final-newline,
+  multiple-imports,
   redefined-outer-name, redefined-builtin,
+  suppressed-message,
   trailing-whitespace, too-many-statements, too-many-return-statements,
   unused-argument,
-  line-too-long
 
 [REPORTS]
 reports=no
