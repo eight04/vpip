@@ -3,7 +3,7 @@ import configparser
 import re
 from collections import OrderedDict
 from pathlib import Path
-from typing import Iterator, List
+from typing import Iterator, List, Union
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement
@@ -110,7 +110,7 @@ def get_prod_updater():
         return SetupUpdater()
     return TomlUpdater()
 
-def get_vpip_config() -> dict[str, str | dict]:
+def get_vpip_config() -> dict[str, Union[str, dict]]:
     """Get vpip config dict"""
     try:
         return get_prod_updater().get_vpip_config()
