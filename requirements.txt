@@ -1,6 +1,6 @@
-pylint==3.0.1
+pylint==3.0.2
 pytest==7.4.2
-pyxcute==0.6.0
+pyxcute==0.7.0
 sphinx==7.2.6
 twine==4.0.2
 wheel==0.41.2
