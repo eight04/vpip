@@ -1,3 +1,4 @@
+build==1.0.3
 pylint==3.0.2
 pytest==7.4.2
 pyxcute==0.7.0

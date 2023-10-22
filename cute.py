@@ -5,7 +5,7 @@ cute(
     test = ['pylint {pkg_name} cute.py', 'pytest', 'readme_build'],
     bump_pre = 'test',
     bump_post = ['dist', 'release', 'publish', 'install'],
-    dist = 'x-clean build dist *.egg-info && python setup.py sdist bdist_wheel',
+    dist = 'x-clean build dist *.egg-info && python -m build',
     release = [
         'git add .',
         'git commit -m "Release v{version}"',
