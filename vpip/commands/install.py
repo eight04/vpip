@@ -1,3 +1,4 @@
+from vpip.dependency import spec_to_pkg
 from .link import link_console_script
 
 help = "Install package and save to dependencies"
@@ -59,7 +60,7 @@ def install_global(packages, upgrade=False, latest=False):
                 # TODO: make pip support install_scripts
                 # https://github.com/pypa/pip/issues/3934
                 pip_api.install([pkg], upgrade=upgrade, latest=latest)
-                link_console_script(pkg)
+                link_console_script(spec_to_pkg(pkg))
         except Exception:
             vv.destroy()
             raise

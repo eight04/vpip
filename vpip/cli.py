@@ -1,10 +1,9 @@
 import argparse
 import sys
 import shlex
-from configparser import ConfigParser
-from pathlib import Path
 
 from . import commands
+from .dependency import get_vpip_config
 
 def cli(args=None):
     """CLI entry point.
@@ -24,17 +23,15 @@ def cli(args=None):
         args = sys.argv[1:]
     
     def fallback(values):
-        config = ConfigParser()
-        file = Path("setup.cfg")
+        """Fallback function for subparsers."""
         try:
-            config.read_string(file.read_text(encoding="utf8"))
-            if "vpip.commands" in config:
-                for key, value in config["vpip.commands"].items():
+            config = get_vpip_config()
+            if "commands" in config:
+                for key, value in config["commands"].items():
                     if key == values[0]:
                         return ["run", *shlex.split(value), *values[1:]]
-            fallback_command = config.get("vpip", "command_fallback", fallback=None)
-            if fallback_command is not None:
-                return ["run", *shlex.split(fallback_command), *values]
+            if "command_fallback" in config:
+                return ["run", *shlex.split(config["command_fallback"]), *values]
         except OSError:
             pass
             

@@ -45,3 +45,45 @@ def test_marker():
             assert all(r.name != "twine" for r in pip_api.list_())
             update_local([])
             assert all(r.name != "twine" for r in pip_api.list_())
+
+def test_toml():
+    from yamldirs import create_files
+    from vpip.commands.install import install_local_first_time, install_local
+    from vpip import dependency
+    files = """
+    requirements.txt: |
+        twine~=3.0
+    """
+    with create_files(files):
+        install_local_first_time()
+        install_local(["requests"])
+        u = dependency.TomlUpdater()
+        assert u.get_requirements().startswith("requests~=")
+
+def test_vpip_config():
+    from yamldirs import create_files
+    from vpip import dependency
+    files = """
+    setup.cfg: |
+        [vpip]
+        command_fallback = foo
+
+        [vpip.commands]
+        test = bar
+    """
+    with create_files(files):
+        config = dependency.get_vpip_config()
+        assert config == {"command_fallback": "foo", "commands": {"test": "bar"}}
+
+def test_vpip_config_toml():
+    from yamldirs import create_files
+    from vpip import dependency
+    files = """
+    pyproject.toml: |
+        [tool.vpip]
+        command_fallback = 'foo'
+        commands = {test = 'bar'}
+    """
+    with create_files(files):
+        config = dependency.get_vpip_config()
+        assert config == {"command_fallback": "foo", "commands": {"test": "bar"}}

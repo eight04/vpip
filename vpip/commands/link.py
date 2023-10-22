@@ -1,15 +1,22 @@
 help = "Link console scripts in the local venv to the global scripts folder"
-options = []
+options = [
+    {
+        "name": "PACKAGE",
+        "nargs": "?",
+        "help": "Package name. If not specified, extracts the name from the config (setup.cfg or pyproject.toml)."
+        }
+    ]
 
 def run(ns):
     from .. import venv
     vv = venv.get_current_venv()
     with vv.activate():
-        link_console_script(get_current_pkg())
+        pkg = ns.PACKAGE or get_current_pkg()
+        link_console_script(pkg)
         
 def get_current_pkg():
     from .. import dependency
-    return dependency.ProdUpdater().get_name()
+    return dependency.get_prod_updater().get_name()
         
 def link_console_script(pkg):
     """Find console scripts of the package and try to link the executable to

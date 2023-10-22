@@ -1,5 +1,5 @@
 from collections import namedtuple
-from packaging.version import parse as parse_version, LegacyVersion, Version
+from packaging.version import parse as parse_version, Version
 import requests
 
 UpdateResult = namedtuple("UpdateResult", ["compatible", "latest"])
@@ -59,8 +59,8 @@ def is_compatible(version: Version, new_version: Version) -> bool:
     """Check if two versions are compatible. ``new_version`` may be smaller
     than ``version``.
     """
-    if any(isinstance(v, LegacyVersion) for v in [version, new_version]):
-        return False
+    # if any(isinstance(v, LegacyVersion) for v in [version, new_version]):
+    #     return False
     if version.major == new_version.major:
         if version.major != 0:
             return True

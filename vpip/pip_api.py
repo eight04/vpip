@@ -138,7 +138,8 @@ def list_(not_required=False, format="json"):
     lines = []
     for line in execute_pip(cmd, capture=True):
         lines.append(line)
-    return [create_ns_from_dict(item) for item in json.loads("".join(lines))]
+    # Note: only the first line is json, other lines include pip upgrade info, etc
+    return [create_ns_from_dict(item) for item in json.loads(lines[0])]
 
 def freeze(include: Optional[Container[str]] = None, exclude: Optional[Container[str]] = None) -> List[str]:
     """List installed packages in ``pip freeze`` format (``my_pkg==1.2.3``).

@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import configparser
 import re
 from collections import OrderedDict
@@ -6,6 +7,8 @@ from typing import Iterator, List
 
 from configupdater import ConfigUpdater
 from packaging.requirements import Requirement
+import tomlkit
+from tomlkit.toml_file import TOMLFile
 
 LOCK_FILE = "requirements-lock.txt"
 
@@ -42,7 +45,7 @@ def get_dev_requires():
     return parse_requirements(DevUpdater().get_requirements())
     
 def get_prod_requires():
-    return parse_requirements(ProdUpdater().get_requirements())
+    return parse_requirements(get_prod_updater().get_requirements())
 
 def get_all() -> List[Requirement]:
     m = OrderedDict()
@@ -53,6 +56,7 @@ def get_all() -> List[Requirement]:
 class Updater:
     """Dependency updater interface. Extend this class to create a new updater.
     """
+    @abstractmethod
     def get_requirements(self):
         """Get requirements string.
         
@@ -60,6 +64,7 @@ class Updater:
         """
         raise NotImplementedError
         
+    @abstractmethod
     def get_spec(self, name, version):
         """Get version specifier.
         
@@ -70,6 +75,7 @@ class Updater:
         """
         raise NotImplementedError
         
+    @abstractmethod
     def write_requirements(self, lines):
         """Write new requirements to file.
         
@@ -97,10 +103,92 @@ class DevUpdater(Updater):
             for line in lines:
                 f.write(line + "\n")
                 
+def get_prod_updater():
+    if TomlUpdater.available():
+        return TomlUpdater()
+    if SetupUpdater.available():
+        return SetupUpdater()
+    return TomlUpdater()
+
+def get_vpip_config():
+    """Get vpip config dict"""
+    try:
+        return get_prod_updater().get_vpip_config()
+    except OSError:
+        return {}
+
 class ProdUpdater(Updater):
-    """Production dependency (setup.cfg) updater."""
+    """Production dependency base class"""
+    file_path = "" # should be overridden
+
+    def get_spec(self, name, version):
+        if not version.startswith("0."):
+            version = re.match(r"\d+\.\d+", version).group()
+        return "{}~={}".format(name, version)
+
+    @classmethod
+    def available(cls):
+        return Path(cls.file_path).exists()
+
+    @abstractmethod
+    def get_vpip_config(self):
+        """Get vpip config dict"""
+        raise NotImplementedError
+        
+class TomlUpdater(ProdUpdater):
+    file_path = "pyproject.toml"
+    """Production dependency (pyproject.toml) updater."""
     def __init__(self):
-        self.file = Path("setup.cfg")
+        self.file = TOMLFile(self.file_path)
+        self.document = None
+        
+    def read(self):
+        if self.document is not None:
+            return
+        try:
+            self.document = self.file.read()
+        except OSError:
+            return
+        
+    def get_requirements(self):
+        self.read()
+        if not self.document:
+            return ""
+        try:
+            items = self.document["project"]["dependencies"]
+            return "\n".join(items)
+        except KeyError:
+            pass
+        return ""
+        
+    def get_name(self):
+        self.read()
+        return self.document["project"]["name"]
+        
+    def write_requirements(self, lines):
+        if not self.document:
+            self.document = tomlkit.document()
+        if "project" not in self.document:
+            table = tomlkit.table()
+            self.document.add("project", table)
+        self.document["project"]["dependencies"] = lines
+        self.file.write(self.document)
+
+    def get_vpip_config(self):
+        self.read()
+        if not self.document:
+            return {}
+        try:
+            return self.document["tool"]["vpip"]
+        except KeyError:
+            pass
+        return {}
+
+class SetupUpdater(ProdUpdater):
+    """Production dependency (setup.cfg) updater."""
+    file_path = "setup.cfg"
+    def __init__(self):
+        self.file = Path(self.file_path)
         self.file_py = self.file.with_suffix(".py")
         self.config = ConfigUpdater()
         self.indent = "  " # default to 2 spaces indent?
@@ -125,22 +213,44 @@ class ProdUpdater(Updater):
         self.read()
         return self.config.get("metadata", "name").value
         
-    def get_spec(self, name, version):
-        if not version.startswith("0."):
-            version = re.match(r"\d+\.\d+", version).group()
-        return "{}~={}".format(name, version)
-        
     def write_requirements(self, lines):
         if "options" not in self.config:
             self.config.add_section("options")
-        self.config.set("options", "install_requires", "".join(
-            "\n" + self.indent + l for l in lines))
+        if "install_requires" not in self.config["options"]:
+            self.config["options"]["install_requires"] = None
+        self.config["options"]["install_requires"].set_values(lines)
         self.file.write_text(str(self.config).replace("\r", ""), encoding="utf8")
         if not self.file_py.exists():
             self.file_py.write_text("\n".join([
                 "from setuptools import setup",
                 "setup()"
             ]), encoding="utf8")
+
+    def get_vpip_config(self):
+        self.read()
+        result = {}
+        try:
+            for key in self.config:
+                if key == "vpip":
+                    for value in self.config[key]:
+                        # FIXME: the value is always a string
+                        result[value] = self.config[key][value].value
+                elif key.startswith("vpip."):
+                    n_result = create_nest_dict(result, key.split(".")[1:])
+                    for value in self.config[key]:
+                        n_result[value] = self.config[key][value].value
+            return result
+        except KeyError:
+            pass
+        return {}
+
+def create_nest_dict(d, keys):
+    """Create nested dict from keys"""
+    for key in keys:
+        if key not in d:
+            d[key] = {}
+        d = d[key]
+    return d
         
 class UpdateDependencyResult:
     def __init__(self):
@@ -204,12 +314,12 @@ def add_dev(packages):
     return update_dependency(DevUpdater(), added=packages)
     
 def add_prod(packages, **kwargs):
-    return update_dependency(ProdUpdater(), added=packages)
+    return update_dependency(get_prod_updater(), added=packages)
 
 def delete(packages):
     return (
         update_dependency(DevUpdater(), removed=packages),
-        update_dependency(ProdUpdater(), removed=packages)
+        update_dependency(get_prod_updater(), removed=packages)
     )
     
 def detect_indent(text):
