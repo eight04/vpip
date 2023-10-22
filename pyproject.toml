@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vpip"
-version = "0.9.0"
+version = "0.9.1"
 description = "A CLI which aims to provide an npm-like experience when working with Python packages."
 authors = [{name = "eight", email = "eight04@gmail.com"}]
 # https://pypi.org/classifiers/
