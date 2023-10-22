@@ -110,6 +110,13 @@ def get_prod_updater():
         return SetupUpdater()
     return TomlUpdater()
 
+def get_vpip_config():
+    """Get vpip config dict"""
+    try:
+        return get_prod_updater().get_vpip_config()
+    except OSError:
+        return {}
+
 class ProdUpdater(Updater):
     """Production dependency base class"""
     file_path = "" # should be overridden
@@ -118,11 +125,16 @@ class ProdUpdater(Updater):
         if not version.startswith("0."):
             version = re.match(r"\d+\.\d+", version).group()
         return "{}~={}".format(name, version)
-        
+
     @classmethod
     def available(cls):
         return Path(cls.file_path).exists()
 
+    @abstractmethod
+    def get_vpip_config(self):
+        """Get vpip config dict"""
+        raise NotImplementedError
+        
 class TomlUpdater(ProdUpdater):
     file_path = "pyproject.toml"
     """Production dependency (pyproject.toml) updater."""
@@ -161,6 +173,16 @@ class TomlUpdater(ProdUpdater):
             self.document.add("project", table)
         self.document["project"]["dependencies"] = lines
         self.file.write(self.document)
+
+    def get_vpip_config(self):
+        self.read()
+        if not self.document:
+            return {}
+        try:
+            return self.document["vpip"]
+        except KeyError:
+            pass
+        return {}
 
 class SetupUpdater(ProdUpdater):
     """Production dependency (setup.cfg) updater."""
@@ -202,6 +224,32 @@ class SetupUpdater(ProdUpdater):
                 "from setuptools import setup",
                 "setup()"
             ]), encoding="utf8")
+
+    def get_vpip_config(self):
+        self.read()
+        result = {}
+        try:
+            for key in self.config:
+                if key == "vpip":
+                    for value in self.config[key]:
+                        # FIXME: the value is always a string
+                        result[value] = self.config[key][value].value
+                elif key.startswith("vpip."):
+                    n_result = create_nest_dict(result, key.split(".")[1:])
+                    for value in self.config[key]:
+                        n_result[value] = self.config[key][value].value
+            return result
+        except KeyError:
+            pass
+        return {}
+
+def create_nest_dict(d, keys):
+    """Create nested dict from keys"""
+    for key in keys:
+        if key not in d:
+            d[key] = {}
+        d = d[key]
+    return d
         
 class UpdateDependencyResult:
     def __init__(self):

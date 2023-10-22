@@ -60,4 +60,30 @@ def test_toml():
         u = dependency.TomlUpdater()
         assert u.get_requirements().startswith("requests~=")
 
+def test_vpip_config():
+    from yamldirs import create_files
+    from vpip import dependency
+    files = """
+    setup.cfg: |
+        [vpip]
+        command_fallback = foo
 
+        [vpip.commands]
+        test = bar
+    """
+    with create_files(files):
+        config = dependency.get_vpip_config()
+        assert config == {"command_fallback": "foo", "commands": {"test": "bar"}}
+
+def test_vpip_config_toml():
+    from yamldirs import create_files
+    from vpip import dependency
+    files = """
+    pyproject.toml: |
+        [vpip]
+        command_fallback = 'foo'
+        commands = {test = 'bar'}
+    """
+    with create_files(files):
+        config = dependency.get_vpip_config()
+        assert config == {"command_fallback": "foo", "commands": {"test": "bar"}}
