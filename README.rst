@@ -25,7 +25,7 @@ Features
     
 * Install packages to a local virtual environment.
 
-  - Dependencies are stored in ``requirements.txt`` (development) and ``setup.cfg`` (production, as the ``install_requires`` option).
+  - Dependencies are stored in ``requirements.txt`` (development) and ``setup.cfg``/``pyproject.toml`` (production).
   
 * When removing a package, also remove its sub-dependencies.
 * Easily run commands in the local virtual environment.
@@ -84,9 +84,15 @@ Similar projects
 ----------------
 
 * `pipm <https://github.com/jnoortheen/pipm>`_ - which doesn't use virtualenv.
+* `pipx <https://github.com/pypa/pipx>`_ - like ``vpip install -g``.
+* `pdm <https://github.com/pdm-project/pdm>`_ - a more feature-rich depdenency manager.
 
 Changelog
 ---------
+
+* 0.9.1 (Oct 22, 2023)
+
+  - Fix: type error on Python 3.9
 
 * 0.9.0 (Oct 22, 2023)
 
