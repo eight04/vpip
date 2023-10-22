@@ -216,8 +216,9 @@ class SetupUpdater(ProdUpdater):
     def write_requirements(self, lines):
         if "options" not in self.config:
             self.config.add_section("options")
-        self.config.set("options", "install_requires", "".join(
-            "\n" + self.indent + l for l in lines))
+        if "install_requires" not in self.config["options"]:
+            self.config["options"]["install_requires"] = None
+        self.config["options"]["install_requires"].set_values(lines)
         self.file.write_text(str(self.config).replace("\r", ""), encoding="utf8")
         if not self.file_py.exists():
             self.file_py.write_text("\n".join([
