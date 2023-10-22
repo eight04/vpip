@@ -179,7 +179,7 @@ class TomlUpdater(ProdUpdater):
         if not self.document:
             return {}
         try:
-            return self.document["vpip"]
+            return self.document["tool"]["vpip"]
         except KeyError:
             pass
         return {}

@@ -80,7 +80,7 @@ def test_vpip_config_toml():
     from vpip import dependency
     files = """
     pyproject.toml: |
-        [vpip]
+        [tool.vpip]
         command_fallback = 'foo'
         commands = {test = 'bar'}
     """
