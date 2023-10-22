@@ -17,7 +17,7 @@ install
 
 Install packages and save to the dependency.
 
-By default, the package would be installed to the local ``.venv`` folder, and the package name would be add to the ``install_requires`` option in ``setup.cfg``.
+By default, the package would be installed to the local ``.venv`` folder, and the package name would be add to the ``install_requires`` option in package config.
 
 The version range of the development dependency is pinned and the version range of the production dependency is specified in a compatible range.
 
@@ -57,7 +57,7 @@ Update packages and save to the dependency.
 
 By default, this command only chooses a release from the compatible version range. For example: if the current version is ``0.4.5``, the compatible range is ``>=0.4.5,<0.5``; if the current version is ``1.8.7``, the compatible range is ``>=1.8.7,<2``.
 
-If no package is specified, the command update all local packages in the dependencies.
+If no package is specified, the command updates all local packages in the dependencies.
 
 Options:
 
@@ -104,11 +104,13 @@ link
 
 .. code::
 
-  vpip link
+  vpip link [PACKAGE]
   
 Link console scripts installed in the local venv to the global Scripts folder so they can be invoked without activating the venv. See :func:`vpip.venv.get_global_script_folders`
 
-This command checks the ``console_scripts`` in ``setup.cfg`` to decide which commands should be linked.
+When ``PACKAGE`` is not specified, the command links CLI scripts defined in ``setup.cfg``/``pyproject.toml``.
+
+You can also pass a package name to link that package's CLI.
 
 update_venv
 ~~~~~~~~~~~
@@ -126,7 +128,9 @@ Options:
 Extend commands
 ---------------
 
-``vpip`` allows you to define your own commands. In the ``setup.cfg`` file, add:
+``vpip`` allows you to define your own commands.
+
+``setup.cfg``:
 
 .. code-block:: ini
 
@@ -135,16 +139,38 @@ Extend commands
     test = python setup.py test
     build = make something
 
+``pyproject.toml``:
+
+.. code-block:: toml
+
+    [tool.vpip.commands]
+    # name = command
+    test = "python setup.py test"
+    build = "make something"
+
+    # or use an inline table
+    [tool.vpip]
+    commands = {test = "python setup.py test", build = "make something"}
+
 After adding these commands, you can invoke them with ``vpip test`` and ``vpip build``. These commands would be run inside the venv. Extra arguments would be appended to the command.
 
 Command fallback
 ----------------
 
-Another way to extend ``vpip`` CLI is to define a command fallback. In the ``setup.cfg`` file, add:
+Another way to extend ``vpip`` CLI is to define a command fallback.
+
+``setup.cfg``:
 
 .. code-block:: ini
 
     [vpip]
     command_fallback = python setup.py
 
-This is a better solution if you are using a task runner (e.g. `pyxcute <https://pypi.org/project/pyxcute/>`_) and don't want to write down all commands in ``setup.cfg``.
+``pyproject.toml``:
+
+.. code-block:: toml
+
+    [tool.vpip]
+    command_fallback = "python setup.py"
+
+This is a better solution if you are using a task runner (e.g. `pyxcute <https://pypi.org/project/pyxcute/>`_) since tasks are already defined somewhere else.

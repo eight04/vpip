@@ -110,7 +110,7 @@ def get_prod_updater():
         return SetupUpdater()
     return TomlUpdater()
 
-def get_vpip_config():
+def get_vpip_config() -> dict[str, str | dict]:
     """Get vpip config dict"""
     try:
         return get_prod_updater().get_vpip_config()
@@ -136,8 +136,8 @@ class ProdUpdater(Updater):
         raise NotImplementedError
         
 class TomlUpdater(ProdUpdater):
-    file_path = "pyproject.toml"
     """Production dependency (pyproject.toml) updater."""
+    file_path = "pyproject.toml"
     def __init__(self):
         self.file = TOMLFile(self.file_path)
         self.document = None
@@ -299,7 +299,7 @@ def update_dependency(updater, added=None, removed=None):
         
     return result
         
-def has_lock():
+def has_lock() -> bool:
     """Detect if there is a lock file (requirements-lock.txt)"""
     return Path(LOCK_FILE).exists()
         
