@@ -88,6 +88,14 @@ Similar projects
 Changelog
 ---------
 
+* 0.9.0 (Oct 22, 2023)
+
+  - Change: bump to python>=3.9, update dependencies.
+  - Add: support ``pyproject.toml``.
+  - Add: ``link`` command now accepts an optional package name.
+  - Fix: ``install -g`` error when using a specifier.
+  - Fix: JSON error in ``pip_api.list_``.
+
 * 0.8.0 (Apr 23, 2022)
 
   - Change: now vpip would try to avoid sub-dependencies conflicts by passing all dependencies to ``pip install`` when installing/updating packages.

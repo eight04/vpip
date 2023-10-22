@@ -3,7 +3,7 @@ options = [
     {
         "name": "PACKAGE",
         "nargs": "?",
-        "help": "Package name. If not specified, the package in setup.cfg is used."
+        "help": "Package name. If not specified, extracts the name from the config (setup.cfg or pyproject.toml)."
         }
     ]
 
