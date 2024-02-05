@@ -90,6 +90,10 @@ Similar projects
 Changelog
 ---------
 
+* 0.9.2 (Feb 4, 2024)
+
+  - Fix: ignore unsupported version number in ``list --outdated``.
+
 * 0.9.1 (Oct 22, 2023)
 
   - Fix: type error on Python 3.9
