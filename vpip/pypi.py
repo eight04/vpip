@@ -1,10 +1,16 @@
 from collections import namedtuple
-from packaging.version import parse as parse_version, Version
+from packaging.version import InvalidVersion, Version
 import requests
 
 UpdateResult = namedtuple("UpdateResult", ["compatible", "latest"])
 
 session = None
+
+def parse_version(s: str):
+    try:
+        return Version(s)
+    except InvalidVersion:
+        return None
 
 def get_session():
     """Return a static :class:`requests.Session` object used by
@@ -37,10 +43,10 @@ def check_update(pkg, curr_version):
     
     # curr_version = packaging.version.parse(curr_version)
     all_versions = [parse_version(v) for v in r.json()["releases"].keys()]
-    all_versions = [v for v in all_versions if not v.is_prerelease]
+    all_versions = [v for v in all_versions if v and not v.is_prerelease]
     all_versions.sort()
     
-    curr_version = parse_version(curr_version)
+    curr_version = Version(curr_version)
     latest = None
     compatible = None
     
