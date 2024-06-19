@@ -98,32 +98,33 @@ def show(packages, verbose=False):
     if verbose:
         cmd += " --verbose"
         
-    result = []
-    ns = Namespace()
+    result = [Namespace()]
     last_name = None
     
     for line in execute_pip("{} {}".format(cmd, " ".join(packages)), True):
         if line.startswith("---"):
-            result.append(ns)
-            ns = Namespace()
+            result.append(Namespace())
+            last_name = None
             continue
             
-        match = re.match(r"([\w-]+):\s*(.*)", line)
+        # header name
+        match = re.match(r"([\x21-\x7e]+):(.*)", line)
         if match:
             name, value = match.groups()
             name = case_conversion.snakecase(name)
-            value = value.strip()
-            setattr(ns, name, value)
+            value = value.rstrip("\r\n")
+            value = value.lstrip()
+            setattr(result[-1], name, value)
             last_name = name
             continue
             
-        match = re.match(r"\s+(\S.*)", line)
+        # header value folded
+        match = re.match(r"(\s+\S.*)", line)
         if match and last_name:
-            value = getattr(ns, last_name) + "\n" + match.group(1).strip()
-            setattr(ns, last_name, value)
+            value = getattr(result[-1], last_name) + match.group(1).rstrip("\r\n")
+            setattr(result[-1], last_name, value)
             continue
             
-    result.append(ns)
     return result
     
 def list_(not_required=False, format="json"):
