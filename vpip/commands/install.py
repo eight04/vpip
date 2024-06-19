@@ -59,6 +59,7 @@ def install_global(packages, upgrade=False, latest=False):
             with vv.activate(True):
                 # TODO: make pip support install_scripts
                 # https://github.com/pypa/pip/issues/3934
+                print(f"\nInstalling {pkg}")
                 pip_api.install([pkg], upgrade=upgrade, latest=latest)
                 link_console_script(spec_to_pkg(pkg))
         except Exception:
