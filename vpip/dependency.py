@@ -122,9 +122,12 @@ class ProdUpdater(Updater):
     file_path = "" # should be overridden
 
     def get_spec(self, name, version):
+        # NOTE: `pywin32~=308` is not a valid specifier
+        if "." not in version:
+            return f"{name}>={version}"
+
         if not version.startswith("0."):
-            # FIXME: is `pywin32~=308` a valid specifier?
-            version = re.match(r"\d+(\.\d+)?", version).group()
+            version = re.match(r"\d+\.\d+", version).group()
         return "{}~={}".format(name, version)
 
     @classmethod
