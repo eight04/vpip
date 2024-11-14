@@ -123,7 +123,8 @@ class ProdUpdater(Updater):
 
     def get_spec(self, name, version):
         if not version.startswith("0."):
-            version = re.match(r"\d+\.\d+", version).group()
+            # FIXME: is `pywin32~=308` a valid specifier?
+            version = re.match(r"\d+(\.\d+)?", version).group()
         return "{}~={}".format(name, version)
 
     @classmethod
