@@ -11,7 +11,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -U pip wheel
-      # - run: pip install -r requirements-lock.txt
-      - run: cat requirements-lock.txt | xargs -n 1 pip install --no-deps || exit 0
+      # - run: pip install -r requirements.txt
+      - run: cat requirements.txt | xargs -n 1 pip install || exit 0
       - run: pip install .
       - run: python cute.py test
