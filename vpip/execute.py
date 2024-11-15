@@ -21,8 +21,7 @@ def execute(cmd, capture=False):
                 cmd[0] = executable
         with subprocess.Popen(cmd, stdout=stdout, encoding="utf8", shell=shell) as process:
             if capture:
-                for line in process.stdout:
-                    yield line
+                yield from process.stdout
         if process.returncode:
             raise subprocess.CalledProcessError(process.returncode, cmd)
     if capture:

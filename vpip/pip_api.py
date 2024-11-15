@@ -1,7 +1,6 @@
 """``pip`` command API."""
 
 import json
-import pathlib
 import re
 from argparse import Namespace
 from typing import List, Optional, Container
@@ -64,12 +63,6 @@ def install(
 def install_requirements(file="requirements.txt"):
     """Install ``requirements.txt`` file."""
     execute_pip("install -r {}".format(file))
-    
-def install_editable():
-    """Install the current cwd as editable package."""
-    setup = pathlib.Path("setup.py")
-    if setup.exists():
-        execute_pip("install -e .")
     
 def uninstall(packages):
     """Uninstall packages.

@@ -75,7 +75,7 @@ def update_local(packages: List[str], latest: bool = False):
     prod_result = dependency.add_prod(prod_installed)
 
     if prod_result.incompat_update:
-        pip_api.install_editable()
+        install.install_editable()
 
     if any(r.dirty for r in [dev_result, prod_result]):
         dependency.update_lock()

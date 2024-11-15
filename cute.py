@@ -17,7 +17,7 @@ cute(
     ],
     install = 'pip install -e .',
     readme_build = [
-        ('rst2html5.py --no-raw --exit-status=1 --verbose '
+        ('rst2html5 --no-raw --exit-status=1 --verbose '
          'README.rst | x-pipe build/readme/index.html')
     ],
     readme_pre = "readme_build",
