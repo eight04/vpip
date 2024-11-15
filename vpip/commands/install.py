@@ -37,6 +37,13 @@ def run(ns):
     else:
         install_local_first_time()
 
+def install_editable():
+    """Install the current cwd as editable package."""
+    from ..dependency import get_prod_updater
+    from ..pip_api import execute_pip
+    if get_prod_updater().available():
+        execute_pip("install -e .")
+    
 def install_global(packages, upgrade=False, latest=False):
     """Install global packages.
     
@@ -121,7 +128,7 @@ def install_local(packages, dev=False, **kwargs):
             if result.incompat_update:
                 # rebuild egg file to avoid incompatible errors
                 # https://github.com/eight04/vpip/issues/19
-                pip_api.install_editable()
+                install_editable()
         dependency.update_lock()
 
 def install_local_first_time():
@@ -136,8 +143,8 @@ def install_local_first_time():
     with vv.activate(True):
         if dependency.has_lock():
             pip_api.install_requirements(dependency.LOCK_FILE)
-            pip_api.install_editable()
+            install_editable()
         else:
-            pip_api.install_editable()
+            install_editable()
             pip_api.install_requirements()
             dependency.update_lock()

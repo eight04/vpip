@@ -5,7 +5,7 @@ import importlib.resources
 from typing import Iterator
 
 def old_iter_files() -> Iterator[str]:
-    for name in importlib.resources.contents(__name__):
+    for name in importlib.resources.contents(__name__): # pylint: disable=deprecated-method
         if re.match(r"[a-z]\w+\.py", name):
             yield name
 
