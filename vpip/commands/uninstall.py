@@ -42,18 +42,19 @@ def uninstall_local(packages):
 
     vv = venv.get_current_venv()
     with vv.activate():
-        top_packages = get_top_packages(packages)
+        top_packages = filter_top_packages(packages)
         pip_api.uninstall(top_packages)
         dependency.delete(packages)
         clean_unused()
         dependency.update_lock()
         
-def get_top_packages(packages: List[str]) -> List[str]:
+def filter_top_packages(packages: List[str]) -> List[str]:
     """Return top-level packages"""
     from .. import pip_api
     current_pkg = get_current_pkg()
-    return [pkg.name for pkg in pip_api.show(packages)
-            if not pkg.required_by or pkg.required_by == current_pkg]
+    pkg_infos = pip_api.get_pkg_infos(packages)
+    return [pkg.name for pkg in pkg_infos
+            if not pkg.required_by or pkg.required_by == {current_pkg}]
 
 def clean_unused():
     """Remove unused packages"""
@@ -64,7 +65,7 @@ def clean_unused():
         deps.append(req.name)
     for req in dependency.get_prod_requires():
         deps.append(req.name)
-    used = set(pkg.name for pkg in pip_api.show(deps))
+    used = set(pkg.name for pkg in pip_api.get_pkg_infos(deps))
         
     def get_unused():
         return [

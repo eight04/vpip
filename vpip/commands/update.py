@@ -61,7 +61,7 @@ def update_local(packages: List[str], latest: bool = False):
         raise Exception(f"Some packages are not installed: {', '.join(missing)}")
 
     pip_api.install([*packages, *pip_api.freeze(include=dev_packages | prod_packages, exclude=set(names))], upgrade=True, latest=latest)
-    infos = pip_api.show(names)
+    infos = pip_api.get_pkg_infos(names)
 
     dev_installed = {}
     prod_installed = {}

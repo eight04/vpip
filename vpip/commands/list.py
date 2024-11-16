@@ -30,7 +30,7 @@ def iter_global_packages():
         vv = venv.get_global_pkg_venv(dir_name)
         with vv.activate():
             req = Requirement(dir_name)
-            yield PackageInfo(req.name, pip_api.show([req.name])[0].version)
+            yield PackageInfo(req.name, pip_api.get_pkg_info(req.name).version)
             
 def print_global_packages(check_outdated=False):
     for info in iter_global_packages():

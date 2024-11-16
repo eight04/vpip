@@ -14,7 +14,7 @@ def run(ns):
         pkg = ns.PACKAGE or get_current_pkg()
         link_console_script(pkg)
         
-def get_current_pkg():
+def get_current_pkg() -> str:
     from .. import dependency
     return dependency.get_prod_updater().get_name()
         
@@ -31,7 +31,7 @@ def link_console_script(pkg):
     from .. import pip_api, venv
     # should be called inside a venv
     # link console script to GLOBAL_SCRIPT_FOLDER so they can be accessed outside of the venv
-    entry_points = pip_api.show([pkg], verbose=True)[0].entry_points
+    entry_points = pip_api.get_pkg_info(pkg).entry_points
     config = ConfigParser()
     config.read_string(entry_points)
     if "console_scripts" not in config:
