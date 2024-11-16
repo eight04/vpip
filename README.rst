@@ -90,6 +90,14 @@ Similar projects
 Changelog
 ---------
 
+* 0.10.0 (Nov 16, 2024)
+
+  - Fix: packages only bump major should use ``>=`` version range.
+  - Fix: use ``pip inspect`` instead of ``pip show`` to get package information.
+  - Fix: support editable install for pyproject.toml.
+  - Fix: don't throw on versions without minor numbers.
+  - Fix: unable to list global packages if extra is used.
+
 * 0.9.2 (Feb 4, 2024)
 
   - Fix: ignore unsupported version number in ``list --outdated``.
