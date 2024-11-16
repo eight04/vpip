@@ -1,5 +1,6 @@
 """``pip`` command API."""
 
+from collections.abc import Iterator
 import functools
 import json
 import re
@@ -72,16 +73,24 @@ def uninstall(packages):
     execute_pip("uninstall -y {}".format(" ".join(packages)))
 
 class Package:
+    """Package information. You can get this object by :func:`get_pkg_info`."""
     def __init__(self, data):
-        self.name = data["metadata"]["name"]
-        self.normalized_name = packaging.utils.canonicalize_name(self.name)
-        self.version = data["metadata"]["version"]
+        #: Package name.
+        self.name: str = data["metadata"]["name"]
+        #: Normalized package name.
+        self.normalized_name: str = packaging.utils.canonicalize_name(self.name)
+        #: Package version.
+        self.version: str = data["metadata"]["version"]
+        #: Package dependencies
         self.requires: set[Package] = set()
+        #: Packages that require this
         self.required_by: set[Package] = set()
-        self.metadata_location = data["metadata_location"]
+        #: Metadata location
+        self.metadata_location: str = data["metadata_location"]
 
     @functools.cached_property
-    def entry_points(self):
+    def entry_points(self) -> str:
+        """Text content of entry_points.txt. Lazily loaded."""
         import pathlib
         try:
             text = pathlib.Path(self.metadata_location).joinpath("entry_points.txt").read_text(encoding="utf-8")
@@ -90,7 +99,9 @@ class Package:
         return text
 
 class InspectGraph:
+    """The graph of installed packages."""
     def __init__(self, installed):
+        #: A dictionary of installed packages.
         self.packages: dict[packaging.utils.NormalizedName, Package] = {}
 
         # build packages
@@ -109,30 +120,25 @@ class InspectGraph:
                     required.required_by.add(pkg)
 
 @functools.cache
-def inspect():
-    """Inspect packages.
-    
-    :rtype: list[argparse.Namespace]
-    """
+def inspect() -> InspectGraph:
+    """Inspect packages. Note that this function is cached."""
     output = "".join(execute_pip("inspect", capture=True))
     raw = json.loads(output)
     assert raw["version"] == "1"
     return InspectGraph(raw["installed"])
 
-def get_pkg_infos(packages):
+def get_pkg_infos(names: list[str]) -> Iterator[Package]:
+    """Get multiple packages information."""
     graph = inspect()
-    for pkg in packages:
+    for pkg in names:
         pkg = packaging.utils.canonicalize_name(pkg)
         if pkg not in graph.packages:
             raise Exception(f"Package {pkg} is not installed")
         yield graph.packages[pkg]
 
-def get_pkg_info(pkg):
-    """Get package information.
-    
-    :arg str pkg: Package name.
-    """
-    return next(get_pkg_infos([pkg]))
+def get_pkg_info(name: str) -> Package:
+    """Get package information."""
+    return next(get_pkg_infos([name]))
     
 def show(packages, verbose=False):
     """Get package information.
