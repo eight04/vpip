@@ -38,22 +38,18 @@ def install(
         cmd += " -U --upgrade-strategy eager"
     if not deps:
         cmd += " --no-deps"
-        
-    need_info = []
-    for i, pkg in enumerate(packages):
-        if upgrade and not pkg.startswith("http") and not latest and not Requirement(pkg).specifier:
-            # compatible update. find current version
-            need_info.append((i, pkg))
-    result = show([v for k, v in need_info])
-    if len(result) != len(need_info):
-        installed = set(r.name for r in result)
-        needed = set(v for k, v in need_info)
-        missing = list(needed - installed)
-        raise Exception(f"Upgrade error: some packages are not installed: {', '.join(missing)}")
-    for info, (i, pkg) in zip(result, need_info):
-        packages[i] = f"{pkg}~={get_compatible_version(info.version)}"
 
-    cmd = f"{cmd} {' '.join(packages)}"
+    for spec in packages:
+        if spec.startswith("http"):
+            cmd += " {}".format(spec)
+            continue
+        req = Requirement(spec)
+        if upgrade and not latest and not req.specifier:
+            # compatible update
+            cmd += f" {req.name}~={get_compatible_version(get_pkg_info(req.name).version)}"
+            continue
+        cmd += f" {spec}"
+        
     collected = []
     for line in execute_pip(cmd, capture=True):
         print(line, end="")
@@ -253,5 +249,8 @@ def get_compatible_version(version):
     """
     if version.startswith("0."):
         return version
-    return ".".join(version.split(".")[:2])
+    digits = version.split(".")
+    if len(digits) < 2:
+        digits.append("0")
+    return ".".join(digits[:2])
     
