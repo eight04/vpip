@@ -10,6 +10,8 @@ from packaging.requirements import Requirement
 import tomlkit
 from tomlkit.toml_file import TOMLFile
 
+from .pip_api import get_compatible_version
+
 LOCK_FILE = "requirements-lock.txt"
 
 def parse_requirements(text) -> Iterator[Requirement]:
@@ -122,10 +124,10 @@ class ProdUpdater(Updater):
     file_path = "" # should be overridden
 
     def get_spec(self, name, version):
-        if not version.startswith("0."):
-            # FIXME: is `pywin32~=308` a valid specifier?
-            version = re.match(r"\d+(\.\d+)?", version).group()
-        return "{}~={}".format(name, version)
+        if "." not in version:
+            # packages only bumps major should be treated as >=
+            return f"{name}>={version}"
+        return f"{name}~={get_compatible_version(version)}"
 
     @classmethod
     def available(cls):
