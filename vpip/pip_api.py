@@ -1,11 +1,13 @@
 """``pip`` command API."""
 
+import functools
 import json
 import re
 from argparse import Namespace
 from typing import List, Optional, Container
 
 from packaging.requirements import Requirement
+import packaging.utils
 import case_conversion
 
 from .execute import execute
@@ -72,6 +74,69 @@ def uninstall(packages):
     if not packages:
         return
     execute_pip("uninstall -y {}".format(" ".join(packages)))
+
+class Package:
+    def __init__(self, data):
+        self.name = data["metadata"]["name"]
+        self.normalized_name = packaging.utils.canonicalize_name(self.name)
+        self.version = data["metadata"]["version"]
+        self.requires: set[Package] = set()
+        self.required_by: set[Package] = set()
+        self.metadata_location = data["metadata_location"]
+
+    @functools.cached_property
+    def entry_points(self):
+        import pathlib
+        try:
+            text = pathlib.Path(self.metadata_location).joinpath("entry_points.txt").read_text(encoding="utf-8")
+        except FileNotFoundError:
+            text = ""
+        return text
+
+class InspectGraph:
+    def __init__(self, installed):
+        self.packages: dict[packaging.utils.NormalizedName, Package] = {}
+
+        # build packages
+        for data in installed:
+            pkg = Package(data)
+            self.packages[pkg.normalized_name] = pkg
+
+        # build requirements
+        for data in installed:
+            pkg = self.packages[packaging.utils.canonicalize_name(data["metadata"]["name"])]
+            for spec in data["metadata"].get("requires_dist", []):
+                required_name = packaging.utils.canonicalize_name(Requirement(spec).name)
+                required = self.packages.get(required_name)
+                if required:
+                    pkg.requires.add(required)
+                    required.required_by.add(pkg)
+
+@functools.cache
+def inspect():
+    """Inspect packages.
+    
+    :rtype: list[argparse.Namespace]
+    """
+    output = "".join(execute_pip("inspect", capture=True))
+    raw = json.loads(output)
+    assert raw["version"] == "1"
+    return InspectGraph(raw["installed"])
+
+def get_pkg_infos(packages):
+    graph = inspect()
+    for pkg in packages:
+        pkg = packaging.utils.canonicalize_name(pkg)
+        if pkg not in graph.packages:
+            raise Exception(f"Package {pkg} is not installed")
+        yield graph.packages[pkg]
+
+def get_pkg_info(pkg):
+    """Get package information.
+    
+    :arg str pkg: Package name.
+    """
+    return next(get_pkg_infos([pkg]))
     
 def show(packages, verbose=False):
     """Get package information.

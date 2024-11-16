@@ -119,7 +119,7 @@ def install_local(packages, dev=False, **kwargs):
             exclude=set(dependency.spec_to_pkg(p) for p in packages)
         )
         pip_api.install([*packages, *pinned_deps], **kwargs)
-        for info in pip_api.show([dependency.spec_to_pkg(i) for i in packages]):
+        for info in pip_api.get_pkg_infos([dependency.spec_to_pkg(i) for i in packages]):
             installed[info.name] = info.version
         if dev:
             dependency.add_dev(installed)
