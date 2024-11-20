@@ -4,6 +4,7 @@ import os
 import re
 import shutil
 import sysconfig
+import sys
 import venv
 from contextlib import contextmanager
 from pathlib import Path
@@ -37,10 +38,12 @@ class GlobalScriptFolderGetter:
         folders = set([
             Path("~/.local/bin").expanduser(),
             Path("~/bin").expanduser(),
-            Path(sysconfig.get_path("scripts"))
+            Path(sysconfig.get_path("scripts")),
+            Path(sys.base_exec_prefix) / "Scripts"
         ])
         cache = []
         paths = [Path(p) for p in os.environ["PATH"].split(os.pathsep)]
+        # breakpoint()
         for path in paths:
             if path in folders:
                 yield path
