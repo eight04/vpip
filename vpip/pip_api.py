@@ -11,6 +11,7 @@ from packaging.requirements import Requirement
 import packaging.utils
 import case_conversion
 
+from .venv import get_active_venv
 from .execute import execute
 
 def install(
@@ -119,24 +120,21 @@ class InspectGraph:
                     pkg.requires.add(required)
                     required.required_by.add(pkg)
 
-def inspect() -> InspectGraph:
-    """Inspect packages."""
-    output = "".join(execute_pip("inspect", capture=True))
-    raw = json.loads(output)
-    assert raw["version"] == "1"
-    return InspectGraph(raw["installed"])
+inspect_result = dict()
 
-inspect_result = None
+def inspect() -> InspectGraph:
+    """Inspect packages. The result is cached according to the active virtual environment."""
+    venv = get_active_venv()
+    if venv not in inspect_result:
+        output = "".join(execute_pip("inspect", capture=True))
+        raw = json.loads(output)
+        assert raw["version"] == "1"
+        inspect_result[venv] = InspectGraph(raw["installed"])
+    return inspect_result[venv]
 
 def get_pkg_infos(names: list[str], cache=True) -> Iterator[Package]:
     """Get multiple packages information."""
-    if cache:
-        global inspect_result
-        if inspect_result is None:
-            inspect_result = inspect()
-        graph = inspect_result
-    else:
-        graph = inspect()
+    graph = inspect()
     for pkg in names:
         pkg = packaging.utils.canonicalize_name(pkg)
         if pkg not in graph.packages:

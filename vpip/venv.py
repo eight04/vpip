@@ -121,6 +121,13 @@ class Builder(venv.EnvBuilder):
         execute([context.env_exe, "-Im", "pip", "install", "-U", *PREINSTALLED_PACKAGES])        
         
 
+def get_active_venv():
+    """Get the active venv folder.
+    
+    :rtype: str
+    """
+    return os.environ.get("VIRTUAL_ENV")
+
 class Venv:
     """A helper class that is associated to a venv folder. It allows you to
     easily activate/deactivate the venv.
