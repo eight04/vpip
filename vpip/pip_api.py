@@ -119,26 +119,33 @@ class InspectGraph:
                     pkg.requires.add(required)
                     required.required_by.add(pkg)
 
-@functools.cache
 def inspect() -> InspectGraph:
-    """Inspect packages. Note that this function is cached."""
+    """Inspect packages."""
     output = "".join(execute_pip("inspect", capture=True))
     raw = json.loads(output)
     assert raw["version"] == "1"
     return InspectGraph(raw["installed"])
 
-def get_pkg_infos(names: list[str]) -> Iterator[Package]:
+inspect_result = None
+
+def get_pkg_infos(names: list[str], cache=True) -> Iterator[Package]:
     """Get multiple packages information."""
-    graph = inspect()
+    if cache:
+        global inspect_result
+        if inspect_result is None:
+            inspect_result = inspect()
+        graph = inspect_result
+    else:
+        graph = inspect()
     for pkg in names:
         pkg = packaging.utils.canonicalize_name(pkg)
         if pkg not in graph.packages:
             raise Exception(f"Package {pkg} is not installed")
         yield graph.packages[pkg]
 
-def get_pkg_info(name: str) -> Package:
+def get_pkg_info(name: str, cache=True) -> Package:
     """Get package information."""
-    return next(get_pkg_infos([name]))
+    return next(get_pkg_infos([name], cache))
     
 def show(packages, verbose=False):
     """Get package information.
