@@ -120,7 +120,7 @@ class InspectGraph:
                     pkg.requires.add(required)
                     required.required_by.add(pkg)
 
-inspect_result = dict()
+inspect_result = {}
 
 def inspect() -> InspectGraph:
     """Inspect packages. The result is cached according to the active virtual environment."""
