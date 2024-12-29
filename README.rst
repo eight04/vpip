@@ -90,6 +90,11 @@ Similar projects
 Changelog
 ---------
 
+* 0.10.1 (Dec 29, 2024)
+
+  - Fix: use ``VIRTUAL_ENV`` env variable when building ``inspect()`` cache.
+  - Fix: try to search script folder in ``base_exec_prefix``.
+
 * 0.10.0 (Nov 16, 2024)
 
   - Fix: packages only bump major should use ``>=`` version range.
