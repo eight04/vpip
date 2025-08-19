@@ -1,19 +1,46 @@
 import sys
-import pathlib
+import tempfile
+from pathlib import Path
 
 from . import venv
-from .run_as_admin import run_and_wait, is_admin
+from .run_as_admin import run_and_wait
+
+def has_symlink_permission():
+    """
+    Attempts to create a symlink using pathlib and tempfile, creating both
+    the target and the link within a single temporary directory for automatic cleanup.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir_str:
+        temp_dir = Path(temp_dir_str)
+
+        test_target = temp_dir / "test_symlink_target.txt"
+        test_link = temp_dir / "test_symlink_link.txt"
+
+        # Create the dummy target file inside the temporary directory
+        test_target.write_text("This is a test file for symlink permission.")
+
+        try:
+            # Try to create a file symlink
+            test_link.symlink_to(test_target, target_is_directory=False)
+            return True
+        except OSError:
+            # print(f"Failed to create symlink: {e}")
+            # if e.winerror == 1314:
+            #     print("This usually means the user does not have 'SeCreateSymbolicLinkPrivilege' or Developer Mode is not enabled.")
+            # elif e.winerror == 5:
+            #     print("Access denied, likely due to insufficient privileges or Developer Mode being off.")
+            return False
 
 class UnixLinker:
     def __init__(self):
-        self.srcs: list[pathlib.Path] = []
+        self.srcs: list[Path] = []
         self.silent: bool = False  # If True, will not prompt for admin privileges
 
-    def add(self, src: pathlib.Path):
+    def add(self, src: Path):
         self.srcs.append(src)
 
         
-    def unlink(self, dest: pathlib.Path):
+    def unlink(self, dest: Path):
         try:
             dest.unlink()
         except FileNotFoundError:
@@ -21,21 +48,21 @@ class UnixLinker:
         
     def make(self):
         # find writable global script folders
-        target_folder = next((f for f in venv.get_global_script_folders() if is_child_writable(pathlib.Path(f))), None)
+        target_folder = next((f for f in venv.get_global_script_folders() if is_child_writable(Path(f))), None)
         if not target_folder:
             print("No writable global script folder found.")
             sys.exit(1)
         print(f"Using global script folder: {target_folder}")
 
         for src in self.srcs:
-            src = pathlib.Path(src)
-            dest = pathlib.Path(target_folder) / src.name
+            src = Path(src)
+            dest = Path(target_folder) / src.name
             dest.unlink(missing_ok=True)
             dest.symlink_to(src, target_is_directory=False)
 
 class WinLinker(UnixLinker):
     def make(self):
-        if is_admin():
+        if has_symlink_permission():
             return super().make()
 
         if not self.srcs:
@@ -53,7 +80,7 @@ class WinLinker(UnixLinker):
 
         run_and_wait(sys.executable, params=params)
 
-def is_child_writable(path: pathlib.Path) -> bool:
+def is_child_writable(path: Path) -> bool:
     """Check if the path is writable by the current user."""
     try:
         test_file = path / "test_writable.txt"
@@ -72,6 +99,6 @@ if __name__ == "__main__":
     linker = Linker()
     linker.silent = True  # Set to True to avoid prompts in non-interactive environments
     for src in srcs:
-        src = pathlib.Path(src)
+        src = Path(src)
         linker.add(src)
     linker.make()
