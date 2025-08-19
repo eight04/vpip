@@ -26,7 +26,7 @@ keywords = ["pip", "pipm", "pipx", "venv", "vex", "virtualenv", "pipenv", "pdm",
 license = {text = "MIT"}
 readme = "README.rst"
 urls = {Homepage = "https://github.com/eight04/vpip"}
-dependencies = ["case-conversion~=2.1", "configupdater~=3.2", "packaging~=24.2", "requests~=2.32", "tomlkit~=0.13.2"]
+dependencies = ["case-conversion~=2.1", "configupdater~=3.2", "packaging~=25.0", "requests~=2.32", "tomlkit~=0.13.3"]
 
 [project.scripts]
 vpip = "vpip.cli:cli"

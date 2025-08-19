@@ -22,75 +22,31 @@ def link_console_script(pkg):
     """Find console scripts of the package and try to link the executable to
     the global scripts folder.
     
+    Should be called inside a venv.
+    
     :arg str pkg: Package name.
     """
     import shutil
-    import os
     import pathlib
     from configparser import ConfigParser
-    from .. import pip_api, venv
-    # should be called inside a venv
+    from .. import pip_api
+    from ..linker import Linker
+
     # link console script to GLOBAL_SCRIPT_FOLDER so they can be accessed outside of the venv
     entry_points = pip_api.get_pkg_info(pkg).entry_points
     config = ConfigParser()
     config.read_string(entry_points)
     if "console_scripts" not in config:
         return
+    linker = Linker()
+        
     for executable in config["console_scripts"]:
         src = shutil.which(executable)
         if not src:
             print("unable to access console script {}".format(executable))
             continue
         src = pathlib.Path(src)
-        filename = src.name
-        print("link console script '{}'".format(filename))
-        
-        if os.name == "nt":
-            LinkerCls = WinLinker
-        else:
-            LinkerCls = Linker
-        linker = LinkerCls(src)
-        
-        ok = False
-        errors = []
-        for folder in venv.get_global_script_folders():
-            folder = pathlib.Path(folder)
-            try:
-                folder.mkdir(parents=True, exist_ok=True)
-                linker.make(folder / filename)
-            except OSError as err:
-                errors.append(err)
-                continue
-            ok = True
-            break
-        if not ok:
-            print("cannot link console script")
-            print(errors)
-        
-class Linker:
-    def __init__(self, src):
-        self.src = src
-        
-    def unlink(self, dest):
-        try:
-            dest.unlink()
-        except FileNotFoundError:
-            pass
-        
-    def make(self, dest):
-        self.unlink(dest)
-        self.src.link_to(dest)
+        linker.add(src)
 
-class WinLinker(Linker):
-    def make(self, dest):
-        # FIXME: use elevate + symlink on Windows?
-        # https://stackoverflow.com/questions/6260149/os-symlink-support-in-windows
-        # create a BAT file on windows
-        dest = dest.with_suffix(".bat")
-        self.unlink(dest)
-        content = "\n".join([
-            "@echo off",
-            '"{}" %*'.format(self.src)
-        ])
-        dest.write_text(content)
+    linker.make()
         

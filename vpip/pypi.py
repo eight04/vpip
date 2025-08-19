@@ -42,8 +42,15 @@ def check_update(pkg, curr_version):
     r.raise_for_status()
     
     # curr_version = packaging.version.parse(curr_version)
-    all_versions = [parse_version(v) for v in r.json()["releases"].keys()]
-    all_versions = [v for v in all_versions if v and not v.is_prerelease]
+    all_versions: list[Version] = []
+
+    for v, files in r.json()["releases"].items():
+        is_yanked = any(f.get("yanked", False) for f in files)
+        if is_yanked:
+            continue
+        version = parse_version(v)
+        if version and not version.is_prerelease:
+            all_versions.append(version)
     all_versions.sort()
     
     curr_version = Version(curr_version)

@@ -42,6 +42,7 @@ def install_editable():
     from ..dependency import get_prod_updater
     from ..pip_api import execute_pip
     if get_prod_updater().available():
+        # FIXME: on Windows 10 this will throw if the package is vpip itself (vpip.exe is in use)
         execute_pip("install -e .")
     
 def install_global(packages, upgrade=False, latest=False):
