@@ -43,10 +43,7 @@ def win_join_params(params: list[str]) -> str:
     return " ".join([f'"{escape_double_quote(p)}"' if " " in p or '"' in p else p for p in params])
 
 def is_admin():
-    try:
-        return ctypes.windll.shell32.IsUserAnAdmin()
-    except Exception: # pylint: disable=broad-exception-caught
-        return False
+    return ctypes.windll.shell32.IsUserAnAdmin()
 
 def run_as_admin_shellexecuteex(file_path, params="", working_dir="", show_cmd=1):
     sei = SHELLEXECUTEINFO()
@@ -60,7 +57,6 @@ def run_as_admin_shellexecuteex(file_path, params="", working_dir="", show_cmd=1
     sei.nShow = show_cmd
 
     if ShellExecuteExW(ctypes.byref(sei)):
-        print(f"ShellExecuteEx succeeded. Process handle: {sei.hProcess}, PID: {sei.hProcess if sei.hProcess else 'N/A'}")
         # Note: sei.hProcess will be a valid handle ONLY if SEE_MASK_NOCLOSEPROCESS is used.
         # You can then use this handle with kernel32.WaitForSingleObject, etc.
         return sei.hProcess

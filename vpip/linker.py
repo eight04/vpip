@@ -43,7 +43,7 @@ class WinLinker(UnixLinker):
             return
 
         if self.silent:
-            raise Exception("Cannot link console scripts without admin privileges.")
+            raise PermissionError("Cannot link console scripts without admin privileges.")
 
         params = [
             "-m", "vpip.linker",
