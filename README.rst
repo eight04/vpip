@@ -90,6 +90,11 @@ Similar projects
 Changelog
 ---------
 
+* 0.11.0 (Aug 19, 2025)
+
+  - Change: use symlink on Windows. Now vpip will display a UAC prompt when installing global packages if it has to symlink python scripts and the current user has no symlink permission.
+  - Fix: ignore yanked versions when checking updates.
+
 * 0.10.1 (Dec 29, 2024)
 
   - Fix: use ``VIRTUAL_ENV`` env variable when building ``inspect()`` cache.
