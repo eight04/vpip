@@ -1,9 +1,12 @@
 import sys
 import tempfile
+import json
 from pathlib import Path
 
+from namedpipe import NPopen
+
 from . import venv
-from .run_as_admin import run_and_wait
+from .run_as_admin import run_as_admin_shellexecuteex, wait_handle_close
 
 def has_symlink_permission():
     """
@@ -35,6 +38,7 @@ class UnixLinker:
     def __init__(self):
         self.srcs: list[Path] = []
         self.silent: bool = False  # If True, will not prompt for admin privileges
+        self.script_folder: Path | None = None
 
     def add(self, src: Path):
         self.srcs.append(src)
@@ -45,18 +49,20 @@ class UnixLinker:
             dest.unlink()
         except FileNotFoundError:
             pass
-        
-    def make(self):
-        # find writable global script folders
+
+    def locate_script_folder(self):
         target_folder = next((f for f in venv.get_global_script_folders() if is_child_writable(Path(f))), None)
         if not target_folder:
-            print("No writable global script folder found.")
-            sys.exit(1)
-        print(f"Using global script folder: {target_folder}")
+            raise FileNotFoundError("No writable global script folder found.")
+        self.script_folder = target_folder
+        
+    def make(self):
+        if not self.srcs or not self.script_folder:
+            return
 
         for src in self.srcs:
             src = Path(src)
-            dest = Path(target_folder) / src.name
+            dest = self.script_folder / src.name
             dest.unlink(missing_ok=True)
             dest.symlink_to(src, target_is_directory=False)
 
@@ -66,19 +72,27 @@ class WinLinker(UnixLinker):
             return super().make()
 
         if not self.srcs:
-            print("No console scripts to link.")
             return
 
         if self.silent:
             raise PermissionError("Cannot link console scripts without admin privileges.")
 
-        params = [
-            "-m", "vpip.linker",
-            *(str(s) for s in self.srcs)
-            ]
-        print("Requesting admin privileges to link console scripts...")
+        with NPopen("r", encoding="utf-8") as pipe:
+            params = [
+                "-m", "vpip.linker",
+                "--script-folder", str(self.script_folder),
+                "--pipe", str(pipe.path),
+                *(str(s) for s in self.srcs)
+                ]
 
-        run_and_wait(sys.executable, params=params)
+            with run_as_admin_shellexecuteex(sys.executable, params=params, show_cmd=0):
+                stream = pipe.wait()
+                for line in stream:
+                    data = json.loads(line)
+                    if data.get("error") is not None:
+                        print(f"Linker error: {data['error']}")
+                    else:
+                        pass
 
 def is_child_writable(path: Path) -> bool:
     """Check if the path is writable by the current user."""
@@ -95,10 +109,31 @@ def is_child_writable(path: Path) -> bool:
 Linker = WinLinker if sys.platform == "win32" else UnixLinker
 
 if __name__ == "__main__":
-    srcs = sys.argv[1:]
-    linker = Linker()
-    linker.silent = True  # Set to True to avoid prompts in non-interactive environments
-    for src in srcs:
-        src = Path(src)
-        linker.add(src)
-    linker.make()
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="Link Python scripts to a global script folder.", exit_on_error=False)
+    parser.add_argument("--script-folder", type=Path, help="Specify the script folder to link to.")
+    parser.add_argument("--pipe", type=Path, help="Named pipe for communication.")
+    parser.add_argument("srcs", nargs="+", type=Path, help="Source script files to link.")
+    error = None
+    args = None
+    try:
+        args = parser.parse_args()
+        linker = Linker()
+        linker.silent = True  # Set to True to avoid prompts in non-interactive environments
+        linker.srcs = args.srcs
+        if args.script_folder:
+            linker.script_folder = args.script_folder
+        else:
+            linker.locate_script_folder()
+        linker.make()
+    except Exception as e: # pylint: disable=broad-exception-caught
+        error = e
+    finally:
+        if args and args.pipe:
+            with open(args.pipe, "w", encoding="utf-8") as pipe:
+                if error:
+                    pipe.write(json.dumps({"error": str(error)}) + "\n")
+                else:
+                    pipe.write(json.dumps({"success": True}) + "\n")
+        elif error:
+            raise error

@@ -48,5 +48,18 @@ def link_console_script(pkg):
         src = pathlib.Path(src)
         linker.add(src)
 
+    if not linker.srcs:
+        print("No console scripts found for package {}".format(pkg))
+        return
+
+    try:
+        linker.locate_script_folder()
+        print(f"Using global script folder: {linker.script_folder}")
+    except FileNotFoundError:
+        print("No writable global script folder found. Cannot link console scripts.")
+        return
+
+    files = [f.name for f in linker.srcs]
+    print(f"Linking console scripts: {', '.join(files)}")
     linker.make()
         
