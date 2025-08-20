@@ -90,6 +90,11 @@ Similar projects
 Changelog
 ---------
 
+* 0.11.1 (Aug 20, 2025)
+
+  - Fix: exclude venv scripts folder when checking for global scripts folder.
+  - Add: improve error message in link command.
+
 * 0.11.0 (Aug 19, 2025)
 
   - Change: use symlink on Windows. Now vpip will display a UAC prompt when installing global packages if it has to symlink python scripts and the current user has no symlink permission.
