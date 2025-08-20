@@ -43,8 +43,13 @@ class GlobalScriptFolderGetter:
         ])
         cache = []
         paths = [Path(p) for p in os.environ["PATH"].split(os.pathsep)]
-        # breakpoint()
+        active_venv = get_active_venv()
+        if active_venv:
+            active_venv = Path(active_venv)
         for path in paths:
+            # FIXME: is it possible that the global script folder is inside the active venv?
+            if active_venv and path.is_relative_to(active_venv):
+                continue
             if path in folders:
                 yield path
                 cache.append(path)
