@@ -1,5 +1,6 @@
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
+from contextlib import contextmanager
 import ctypes
 from ctypes import wintypes
 
@@ -45,7 +46,10 @@ def win_join_params(params: list[str]) -> str:
 def is_admin():
     return ctypes.windll.shell32.IsUserAnAdmin()
 
-def run_as_admin_shellexecuteex(file_path, params="", working_dir="", show_cmd=1):
+@contextmanager
+def run_as_admin_shellexecuteex(file_path, params: str | list[str] = "", working_dir="", show_cmd=1):
+    if not isinstance(params, str):
+        params = win_join_params(params)
     sei = SHELLEXECUTEINFO()
     sei.cbSize = ctypes.sizeof(SHELLEXECUTEINFO)
     sei.fMask = SEE_MASK_NOCLOSEPROCESS # Request a process handle
@@ -56,12 +60,16 @@ def run_as_admin_shellexecuteex(file_path, params="", working_dir="", show_cmd=1
     sei.lpDirectory = working_dir
     sei.nShow = show_cmd
 
-    if ShellExecuteExW(ctypes.byref(sei)):
-        # Note: sei.hProcess will be a valid handle ONLY if SEE_MASK_NOCLOSEPROCESS is used.
-        # You can then use this handle with kernel32.WaitForSingleObject, etc.
-        return sei.hProcess
-    error_code = ctypes.get_last_error()
-    raise RunError(f"ShellExecuteEx failed. Error code: {error_code}")
+    if not ShellExecuteExW(ctypes.byref(sei)):
+        error_code = ctypes.get_last_error()
+        raise RunError(f"ShellExecuteEx failed. Error code: {error_code}")
+
+    # Note: sei.hProcess will be a valid handle ONLY if SEE_MASK_NOCLOSEPROCESS is used.
+    # You can then use this handle with kernel32.WaitForSingleObject, etc.
+    try:
+        yield sei.hProcess
+    finally:
+        wait_handle_close(sei.hProcess)
 
 def wait_handle_close(handle):
     """Wait for a handle to close."""
@@ -75,14 +83,3 @@ def wait_handle_close(handle):
     result = kernel32.WaitForSingleObject(handle, INFINITE)
     if result == 0:  # WAIT_OBJECT_0
         kernel32.CloseHandle(handle)
-
-def run_and_wait(file_path, params=None, working_dir="", show_cmd=1):
-    """Run a command and wait for it to complete."""
-    if isinstance(params, list):
-        params = win_join_params(params)
-    elif params is None:
-        params = ""
-    elif not isinstance(params, str):
-        raise TypeError("params must be a string or a list of strings")
-    handle = run_as_admin_shellexecuteex(file_path, params=params, working_dir=working_dir, show_cmd=show_cmd)
-    wait_handle_close(handle)
