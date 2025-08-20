@@ -6,7 +6,7 @@ from pathlib import Path
 from namedpipe import NPopen
 
 from . import venv
-from .run_as_admin import run_as_admin_shellexecuteex, wait_handle_close
+from .run_as_admin import run_as_admin_shellexecuteex
 
 def has_symlink_permission():
     """

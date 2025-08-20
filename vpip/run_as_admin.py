@@ -83,4 +83,3 @@ def wait_handle_close(handle):
     result = kernel32.WaitForSingleObject(handle, INFINITE)
     if result == 0:  # WAIT_OBJECT_0
         kernel32.CloseHandle(handle)
-
