@@ -91,8 +91,7 @@ class WinLinker(UnixLinker):
                     data = json.loads(line)
                     if data.get("error") is not None:
                         print(f"Linker error: {data['error']}")
-                    else:
-                        pass
+                    # TODO: handle success case if needed
 
 def is_child_writable(path: Path) -> bool:
     """Check if the path is writable by the current user."""
