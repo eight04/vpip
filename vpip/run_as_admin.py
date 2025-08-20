@@ -66,9 +66,10 @@ def run_as_admin_shellexecuteex(file_path, params: str | list[str] = "", working
 
     # Note: sei.hProcess will be a valid handle ONLY if SEE_MASK_NOCLOSEPROCESS is used.
     # You can then use this handle with kernel32.WaitForSingleObject, etc.
-    yield sei.hProcess
-
-    wait_handle_close(sei.hProcess)
+    try:
+        yield sei.hProcess
+    finally:
+        wait_handle_close(sei.hProcess)
 
 def wait_handle_close(handle):
     """Wait for a handle to close."""
