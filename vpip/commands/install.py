@@ -1,3 +1,4 @@
+from subprocess import CalledProcessError
 from vpip.dependency import spec_to_pkg
 from .link import link_console_script
 
@@ -147,5 +148,9 @@ def install_local_first_time():
             install_editable()
         else:
             install_editable()
-            pip_api.install_requirements()
+            try:
+                pip_api.install_requirements()
+            except CalledProcessError:
+                # FIXME: we should only catch file not found error
+                pass
             dependency.update_lock()
